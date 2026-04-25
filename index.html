@@ -3,43 +3,111 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlpiChess - Test</title>
+  <title>AlpiChess</title>
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
+    *{margin:0;padding:0;box-sizing:border-box;transition:all 0.3s}
+    
     body{
       font-family:'Segoe UI',sans-serif;
-      background:#1a1a2e;color:#fff;min-height:100vh;
-      display:flex;justify-content:center;align-items:center;padding:20px;
+      background:linear-gradient(135deg,#1a1a2e,#16213e);
+      min-height:100vh;display:flex;justify-content:center;
+      align-items:center;padding:20px;
     }
-    .container{max-width:600px;width:100%;text-align:center}
-    h1{color:#ffd700;margin-bottom:20px}
+    
+    body.tema-acik{
+      background:linear-gradient(135deg,#e8e0d5,#d4c9b8);
+    }
+    
+    .container{max-width:650px;width:100%}
+    
+    h1{
+      text-align:center;color:#ffd700;font-size:2.5rem;
+      margin-bottom:10px;text-shadow:0 0 20px rgba(255,215,0,0.5);
+    }
     h1 span{color:#fff}
+    body.tema-acik h1{color:#c8a600;text-shadow:none}
+    body.tema-acik h1 span{color:#3a3025}
     
-    input{
-      padding:12px;border-radius:25px;border:none;
-      font-size:16px;text-align:center;margin:5px;width:200px
+    .panel{
+      background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);
+      border-radius:20px;padding:25px;
+      box-shadow:0 10px 40px rgba(0,0,0,0.5);
     }
-    button{
-      padding:12px 25px;border-radius:25px;border:none;
-      font-weight:bold;cursor:pointer;font-size:16px;margin:5px
-    }
-    .altin{background:#ffd700;color:#1a1a2e}
-    .yesil{background:#4CAF50;color:#fff}
-    .kirmizi{background:#e74c3c;color:#fff}
+    body.tema-acik .panel{background:rgba(255,255,255,0.3);box-shadow:0 10px 40px rgba(0,0,0,0.1)}
     
-    .box{
-      background:rgba(255,255,255,0.1);padding:20px;
-      border-radius:20px;margin:15px 0;display:none
+    .ust-row{
+      display:flex;justify-content:space-between;
+      align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;
     }
-    .kod{font-size:1.5rem;color:#ffd700;font-weight:bold;word-break:break-all}
+    
+    .sah-uyari{
+      background:#ff4444;color:#fff;padding:8px 16px;
+      border-radius:30px;font-weight:bold;font-size:0.9rem;
+      opacity:0;display:inline-block;
+    }
+    .sah-uyari.aktif{opacity:1;animation:yanipSonme 1s infinite}
+    @keyframes yanipSonme{
+      0%,100%{box-shadow:0 0 15px rgba(255,0,0,0.5)}
+      50%{box-shadow:0 0 30px rgba(255,0,0,0.9)}
+    }
+    
+    .tema-btn{
+      background:rgba(255,255,255,0.2);border:none;color:#fff;
+      font-size:1.2rem;width:40px;height:40px;border-radius:50%;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+    }
+    
+    .ayarlar-row{
+      display:flex;justify-content:center;gap:10px;
+      margin-bottom:15px;flex-wrap:wrap;align-items:center;
+    }
+    
+    select, button{
+      padding:10px 18px;border-radius:25px;border:2px solid rgba(255,255,255,0.3);
+      background:rgba(0,0,0,0.3);color:#fff;font-weight:bold;
+      cursor:pointer;font-size:0.95rem;
+    }
+    body.tema-acik select,body.tema-acik button{
+      background:rgba(255,255,255,0.5);color:#3a3025;border-color:#b8a88a;
+    }
+    
+    .btn-aktif{background:#4CAF50!important;border-color:#4CAF50!important;color:#fff!important}
+    .btn-altin{background:#ffd700!important;color:#1a1a2e!important;border-color:#ffd700!important}
+    .btn-kirmizi{background:#e74c3c!important;color:#fff!important;border-color:#e74c3c!important}
+    
+    .zaman-gostergesi{
+      text-align:center;color:#ffd700;font-size:1.8rem;
+      font-weight:bold;margin:10px 0;font-family:monospace;
+      background:rgba(0,0,0,0.4);padding:10px;border-radius:15px;
+    }
+    .zaman-gostergesi.az{color:#ff4444;animation:yanipSonme 0.5s infinite}
     
     canvas{
       border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.5);
-      margin:15px auto;display:block;cursor:pointer
+      display:block;margin:10px auto;cursor:pointer;
+      touch-action:none;max-width:100%;
     }
-    .durum{
-      background:rgba(0,0,0,0.3);padding:12px;border-radius:30px;
-      margin:10px 0;font-weight:bold
+    
+    .alt-row{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;
+    }
+    
+    .durum-text{
+      flex:1;background:rgba(0,0,0,0.3);color:#fff;
+      padding:12px 20px;border-radius:30px;text-align:center;
+      font-weight:bold;font-size:1.1rem;
+    }
+    
+    .skor-box{
+      background:rgba(0,0,0,0.3);padding:10px 15px;
+      border-radius:30px;color:#ffd700;font-weight:bold;
+      font-size:0.9rem;
+    }
+    
+    @media(max-width:500px){
+      h1{font-size:2rem}
+      .zaman-gostergesi{font-size:1.4rem}
+      canvas{max-width:100%}
     }
   </style>
 </head>
@@ -47,33 +115,50 @@
 <div class="container">
   <h1>🏰 <span>Alpi</span>Chess</h1>
   
-  <div id="menu">
-    <input type="text" id="isim" placeholder="Adın..." maxlength="15"><br>
-    <button class="altin" onclick="odaOlustur()">🎯 Oda Oluştur</button><br>
-    <input type="text" id="kodInput" placeholder="Oda Kodunu Yapıştır">
-    <button class="yesil" onclick="odayaKatil()">🔗 Odaya Katıl</button>
-  </div>
-  
-  <div class="box" id="kodBox">
-    <p>📢 ODA KODU (Karşı tarafa gönder):</p>
-    <div class="kod" id="kodText"></div>
-    <button class="yesil" onclick="koduKopyala()">📋 Kopyala</button>
-    <p style="margin-top:10px">Arkadaşın katılana kadar bekle...</p>
-  </div>
-  
-  <div class="box" id="oyunBox">
-    <div class="durum" id="durumText"></div>
+  <div class="panel">
+    <div class="ust-row">
+      <div class="sah-uyari" id="sahUyari">⚠ ŞAH TEHDİDİ</div>
+      <div>
+        <span class="skor-box" id="beyazSkor">⚪ 0</span>
+        <span class="skor-box" id="siyahSkor" style="margin-left:5px">⚫ 0</span>
+        <button class="tema-btn" onclick="temaDegis()" title="Tema">🌓</button>
+      </div>
+    </div>
+    
+    <div class="ayarlar-row">
+      <button class="btn-aktif" id="insanBtn" onclick="modDegis('insan')">👤 vs 👤</button>
+      <button id="botBtn" onclick="modDegis('bot')">🤖 vs 👤</button>
+      <select id="zorluk" style="display:none">
+        <option value="kolay">🟢 Kolay</option>
+        <option value="orta" selected>🟡 Orta</option>
+        <option value="zor">🔴 Zor</option>
+      </select>
+      <select id="sureSec" onchange="sureDegis()">
+        <option value="0">⏰ Süresiz</option>
+        <option value="180" selected>⏰ 3 Dakika</option>
+        <option value="300">⏰ 5 Dakika</option>
+        <option value="600">⏰ 10 Dakika</option>
+      </select>
+    </div>
+    
+    <div class="zaman-gostergesi" id="zamanBox">⚪ 3:00 | 3:00 ⚫</div>
+    
     <canvas id="tahta" width="480" height="480"></canvas>
-    <button class="kirmizi" onclick="location.reload()">🚪 Çık</button>
+    
+    <div class="alt-row">
+      <div class="durum-text" id="durumText">♟️ Beyaz oynuyor</div>
+      <button class="btn-altin" onclick="yeniOyun()">🔄 Yeni</button>
+    </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
 <script>
+// ============ SATRANÇ MOTORU ============
 const canvas = document.getElementById('tahta');
 const ctx = canvas.getContext('2d');
-const K = 60;
+const KARE = 60;
 const SEMBOL = {r:'♜',n:'♞',b:'♝',q:'♛',k:'♚',p:'♟',R:'♖',N:'♘',B:'♗',Q:'♕',K:'♔',P:'♙'};
+const DEGER = {p:100,n:320,b:330,r:500,q:900,k:20000};
 const BASLA = [
   ['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],
   [null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],
@@ -81,16 +166,29 @@ const BASLA = [
   ['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']
 ];
 
-let tahta = JSON.parse(JSON.stringify(BASLA));
-let benimRenk = null;
-let secili = null;
-let hamleler = [];
-let peer = null;
-let bagli = false;
+// AYARLAR (localStorage'a kaydedilir)
+let koyuTema = localStorage.getItem('tema') !== 'acik';
+let oyunModu = localStorage.getItem('mod') || 'insan';
+let zorlukSeviyesi = localStorage.getItem('zorluk') || 'orta';
+let sureSaniye = parseInt(localStorage.getItem('sure') || '180');
+let beyazSkor = parseInt(localStorage.getItem('bSkor') || '0');
+let siyahSkor = parseInt(localStorage.getItem('sSkor') || '0');
+
+// OYUN DURUMU
+let tahta, oyuncu, secili, hamleler, bitti, botDusunuyor;
+let beyazSure, siyahSure, sureAraligi;
+let rokHakki;
 
 function tr(t){return t?(t===t.toUpperCase()?'beyaz':'siyah'):null}
+function rrk(r){return r==='beyaz'?'siyah':'beyaz'}
 
-function hamleBul(t,sat,sut){
+function sahKonum(t,rnk){
+  const s=rnk==='beyaz'?'K':'k';
+  for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(t[i][j]===s)return[i,j];
+  return null;
+}
+
+function hamleBul(t,sat,sut,guv=true,rk={}){
   const tas=t[sat][sut];if(!tas)return[];
   const rnk=tr(tas),h=[],trc=tas.toLowerCase();
   
@@ -114,27 +212,161 @@ function hamleBul(t,sat,sut){
     case'b':for(const[dx,dy]of[[1,1],[1,-1],[-1,1],[-1,-1]])ekle(dx,dy,true);break;
     case'r':for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]])ekle(dx,dy,true);break;
     case'q':for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]])ekle(dx,dy,true);break;
-    case'k':for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const ys=sat+dy,xs=sut+dx;if(ys>=0&&ys<8&&xs>=0&&xs<8&&(!t[ys][xs]||tr(t[ys][xs])!==rnk))h.push([ys,xs])}break;
+    case'k':
+      for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const ys=sat+dy,xs=sut+dx;if(ys>=0&&ys<8&&xs>=0&&xs<8&&(!t[ys][xs]||tr(t[ys][xs])!==rnk))h.push([ys,xs])}
+      if(guv&&rk[rnk]){
+        const rkk=rk[rnk],sr=rnk==='beyaz'?7:0;
+        if(!sahCek(t,rnk)){
+          if(rkk.buyuk&&t[sr][0]===(rnk==='beyaz'?'R':'r')&&!t[sr][1]&&!t[sr][2]&&!t[sr][3]&&!tehditVar(t,sr,2,rrk(rnk))&&!tehditVar(t,sr,3,rrk(rnk)))h.push([sr,2]);
+          if(rkk.kucuk&&t[sr][7]===(rnk==='beyaz'?'R':'r')&&!t[sr][5]&&!t[sr][6]&&!tehditVar(t,sr,5,rrk(rnk))&&!tehditVar(t,sr,6,rrk(rnk)))h.push([sr,6]);
+        }
+      }
+      break;
   }
-  return h;
+  return guv?h.filter(([hs,ht])=>!sahCek(t.map(s=>[...s]).map((r,i)=>i===sat?[...r]:r).map((r,i)=>{if(i===sat){r[sut]=null;r[hs]=tas}return r}),rnk)):h;
 }
 
-function ciz(){
-  const ac='#f0d9b5',ko='#b58863';
-  for(let i=0;i<8;i++)for(let j=0;j<8;j++){ctx.fillStyle=(i+j)%2?ko:ac;ctx.fillRect(j*K,i*K,K,K)}
-  if(secili){const[ss,st]=secili;ctx.fillStyle='rgba(255,255,100,0.7)';ctx.fillRect(st*K,ss*K,K,K);hamleler.forEach(([hs,ht])=>{const cx=ht*K+K/2,cy=hs*K+K/2;ctx.beginPath();ctx.arc(cx,cy,tahta[hs][ht]?K/2-4:K/6,0,Math.PI*2);ctx.fillStyle=tahta[hs][ht]?'rgba(0,0,0,0.3)':'rgba(0,0,0,0.5)';ctx.fill()})}
-  ctx.font=`bold ${K*0.7}px "Segoe UI Symbol"`;ctx.textAlign='center';ctx.textBaseline='middle';
-  for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(tahta[i][j]){const m=SEMBOL[tahta[i][j]],x=j*K+K/2,y=i*K+K/2+1;ctx.fillStyle='#1a1a1a';ctx.fillText(m,x+1,y+1);ctx.fillStyle=tahta[i][j]===tahta[i][j].toUpperCase()?'#fff':'#2f2f2f';ctx.fillText(m,x,y)}
+function sahCek(t,rnk){const k=sahKonum(t,rnk);return k?tehditVar(t,k[0],k[1],rrk(rnk)):false}
+function tehditVar(t,sat,sut,sald){for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(t[i][j]&&tr(t[i][j])===sald)if(hamleBul(t,i,j,false,{}).some(([x,y])=>x===sat&&y===sut))return true;return false}
+
+function hamleYap(bs,bt,hs,ht){
+  const tas=tahta[bs][bt],rnk=tr(tas),trc=tas.toLowerCase();
+  tahta[hs][ht]=tas;tahta[bs][bt]=null;
+  
+  // Rok
+  if(trc==='k'&&Math.abs(bt-ht)===2){
+    const sr=bs;
+    if(ht===6){tahta[sr][5]=tahta[sr][7];tahta[sr][7]=null}
+    else if(ht===2){tahta[sr][3]=tahta[sr][0];tahta[sr][0]=null}
+  }
+  
+  // Rok hakkı güncelle
+  if(trc==='k'){if(rokHakki[rnk])delete rokHakki[rnk]}
+  if(trc==='r'){if(rokHakki[rnk]){if(bt===0)rokHakki[rnk].buyuk=false;if(bt===7)rokHakki[rnk].kucuk=false}}
+  if(tahta[hs][ht]!==tas&&tahta[hs][ht]){const yr=tr(tahta[hs][ht]);if(rokHakki[yr]){if(ht===0)rokHakki[yr].buyuk=false;if(ht===7)rokHakki[yr].kucuk=false}}
+}
+
+function oyunKontrol(){
+  for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(tahta[i][j]&&tr(tahta[i][j])===oyuncu)if(hamleBul(tahta,i,j,true,rokHakki).length>0)return false;
+  return true;
 }
 
 function kareBul(ex,ey){
   const r=canvas.getBoundingClientRect();
-  const sut=Math.floor((ex-r.left)/K),sat=Math.floor((ey-r.top)/K);
+  const ox=480/r.width,oy=480/r.height;
+  const sut=Math.floor((ex-r.left)*ox/KARE),sat=Math.floor((ey-r.top)*oy/KARE);
   return(sat>=0&&sat<8&&sut>=0&&sut<8)?{sat,sut}:null;
 }
 
+function ciz(){
+  const ac=koyuTema?'#f0d9b5':'#e8dcc8',ko=koyuTema?'#b58863':'#8b7355';
+  for(let i=0;i<8;i++)for(let j=0;j<8;j++){ctx.fillStyle=(i+j)%2?ko:ac;ctx.fillRect(j*KARE,i*KARE,KARE,KARE)}
+  
+  if(!bitti&&sahCek(tahta,oyuncu)){const[ss,st]=sahKonum(tahta,oyuncu);ctx.fillStyle='rgba(255,0,0,0.5)';ctx.fillRect(st*KARE,ss*KARE,KARE,KARE)}
+  
+  if(secili){
+    const[ss,st]=secili;ctx.fillStyle='rgba(255,255,100,0.7)';ctx.fillRect(st*KARE,ss*KARE,KARE,KARE);
+    hamleler.forEach(([hs,ht])=>{
+      const cx=ht*KARE+KARE/2,cy=hs*KARE+KARE/2;ctx.beginPath();
+      if(tahta[hs][ht]){ctx.arc(cx,cy,KARE/2-4,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fill()}
+      else{const tas=tahta[ss]?.[st];if(tas&&tas.toLowerCase()==='k'&&Math.abs(st-ht)===2){ctx.arc(cx,cy,KARE/3,0,Math.PI*2);ctx.fillStyle='rgba(0,150,255,0.7)';ctx.fill()}else{ctx.arc(cx,cy,KARE/6,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fill()}}
+    });
+  }
+  
+  ctx.font=`bold ${KARE*0.7}px "Segoe UI Symbol","Arial Unicode MS"`;ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(tahta[i][j]){const m=SEMBOL[tahta[i][j]],x=j*KARE+KARE/2,y=i*KARE+KARE/2+1;ctx.fillStyle='#1a1a1a';ctx.fillText(m,x+1,y+1);ctx.fillStyle=tahta[i][j]===tahta[i][j].toUpperCase()?'#fff':'#2f2f2f';ctx.fillText(m,x,y)}
+}
+
+function sureGoster(sn){const dk=Math.floor(sn/60),s=sn%60;return dk+':'+(s<10?'0':'')+s}
+
+function sureGuncelle(){
+  document.getElementById('zamanBox').textContent=`⚪ ${sureGoster(beyazSure)} | ${sureGoster(siyahSure)} ⚫`;
+  if(beyazSure<=30)document.getElementById('zamanBox').classList.add('az');
+  else if(siyahSure<=30)document.getElementById('zamanBox').classList.add('az');
+  else document.getElementById('zamanBox').classList.remove('az');
+}
+
+function sureBaslat(){
+  clearInterval(sureAraligi);
+  if(sureSaniye===0){document.getElementById('zamanBox').textContent='⏰ Süresiz';return}
+  
+  sureAraligi=setInterval(()=>{
+    if(bitti||botDusunuyor)return;
+    if(oyuncu==='beyaz'){beyazSure--;if(beyazSure<=0){oyunBitir('siyah','⏰ Beyazın süresi bitti! Siyah kazandı!');return}}
+    else{siyahSure--;if(siyahSure<=0){oyunBitir('beyaz','⏰ Siyahın süresi bitti! Beyaz kazandı!');return}}
+    sureGuncelle();
+  },1000);
+}
+
+function oyunBitir(kazanan,mesaj){
+  bitti=true;clearInterval(sureAraligi);
+  document.getElementById('durumText').textContent=mesaj;
+  if(kazanan==='beyaz'){beyazSkor++;localStorage.setItem('bSkor',beyazSkor)}
+  else if(kazanan==='siyah'){siyahSkor++;localStorage.setItem('sSkor',siyahSkor)}
+  document.getElementById('beyazSkor').textContent='⚪ '+beyazSkor;
+  document.getElementById('siyahSkor').textContent='⚫ '+siyahSkor;
+  document.getElementById('sahUyari').classList.remove('aktif');
+}
+
+function yeniOyun(){
+  tahta=JSON.parse(JSON.stringify(BASLA));
+  oyuncu='beyaz';secili=null;hamleler=[];bitti=false;botDusunuyor=false;
+  rokHakki={beyaz:{buyuk:true,kucuk:true},siyah:{buyuk:true,kucuk:true}};
+  beyazSure=sureSaniye;siyahSure=sureSaniye;
+  
+  document.getElementById('sahUyari').classList.remove('aktif');
+  document.getElementById('durumText').textContent='♟️ Beyaz oynuyor';
+  sureGuncelle();sureBaslat();ciz();
+  
+  if(oyunModu==='bot'&&oyuncu==='siyah')setTimeout(botOyna,500);
+}
+
+function botOyna(){
+  if(bitti||oyuncu!=='siyah')return;
+  botDusunuyor=true;document.getElementById('durumText').textContent='🤖 Bot düşünüyor...';
+  
+  setTimeout(()=>{
+    const tum=[];for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(tahta[i][j]&&tr(tahta[i][j])==='siyah')hamleBul(tahta,i,j,true,rokHakki).forEach(([x,y])=>tum.push({bas:[i,j],hedef:[x,y]}));
+    if(!tum.length){botDusunuyor=false;ciz();return}
+    
+    let ham;
+    if(zorlukSeviyesi==='kolay')ham=tum[Math.floor(Math.random()*tum.length)];
+    else if(zorlukSeviyesi==='orta'){const ye=tum.filter(h=>tahta[h.hedef[0]][h.hedef[1]]);ham=(ye.length&&Math.random()>0.3)?ye[Math.floor(Math.random()*ye.length)]:tum[Math.floor(Math.random()*tum.length)]}
+    else{let enIyi=tum[0],enIyiD=-Infinity;for(const h of tum){const yt=tahta.map(s=>[...s]);yt[h.hedef[0]][h.hedef[1]]=yt[h.bas[0]][h.bas[1]];yt[h.bas[0]][h.bas[1]]=null;let s=0;for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(yt[i][j])s+=(tr(yt[i][j])==='siyah'?1:-1)*DEGER[yt[i][j].toLowerCase()];if(s>enIyiD){enIyiD=s;enIyi=h}}ham=enIyi}
+    
+    hamleYap(ham.bas[0],ham.bas[1],ham.hedef[0],ham.hedef[1]);
+    oyuncu='beyaz';botDusunuyor=false;
+    
+    if(oyunKontrol())oyunBitir('siyah',sahCek(tahta,'beyaz')?'🤖 Siyah kazandı! Şah mat':'🤝 Berabere! Pat');
+    ciz();document.getElementById('durumText').textContent='♟️ Beyaz oynuyor';
+    sureGuncelle();
+  },500);
+}
+
+function modDegis(m){
+  oyunModu=m;localStorage.setItem('mod',m);
+  document.getElementById('insanBtn').classList.toggle('btn-aktif',m==='insan');
+  document.getElementById('botBtn').classList.toggle('btn-aktif',m==='bot');
+  document.getElementById('zorluk').style.display=m==='bot'?'inline':'none';
+  yeniOyun();
+}
+
+function sureDegis(){
+  sureSaniye=parseInt(document.getElementById('sureSec').value);
+  localStorage.setItem('sure',sureSaniye);
+  yeniOyun();
+}
+
+function temaDegis(){
+  koyuTema=!koyuTema;
+  localStorage.setItem('tema',koyuTema?'koyu':'acik');
+  document.body.classList.toggle('tema-acik',!koyuTema);
+  ciz();
+}
+
+// Canvas tıklama
 canvas.addEventListener('click',e=>{
-  if(!bagli)return;
+  if(bitti||botDusunuyor||(oyunModu==='bot'&&oyuncu==='siyah'))return;
   const k=kareBul(e.clientX,e.clientY);if(!k)return;
   const{sat,sut}=k;
   
@@ -142,89 +374,34 @@ canvas.addEventListener('click',e=>{
     const[ss,st]=secili;
     if(ss===sat&&st===sut){secili=null;hamleler=[];ciz();return}
     if(hamleler.some(([x,y])=>x===sat&&y===sut)){
-      tahta[sat][sut]=tahta[ss][st];tahta[ss][st]=null;
-      secili=null;hamleler=[];
-      peer.send(JSON.stringify({t:tahta}));
-      document.getElementById('durumText').textContent='⏳ Rakip bekleniyor...';
-      ciz();return;
+      hamleYap(ss,st,sat,sut);oyuncu=rrk(oyuncu);secili=null;hamleler=[];
+      if(oyunKontrol())oyunBitir(rrk(oyuncu),sahCek(tahta,oyuncu)?(oyuncu==='beyaz'?'Siyah kazandı!':'Beyaz kazandı!'):'🤝 Berabere! Pat');
+      ciz();document.getElementById('durumText').textContent=`♟️ ${oyuncu==='beyaz'?'Beyaz':'Siyah'} oynuyor`;
+      sureGuncelle();
+      if(!bitti&&oyunModu==='bot'&&oyuncu==='siyah')setTimeout(botOyna,500);
+      return;
     }
-    if(tahta[sat][sut]&&tr(tahta[sat][sut])===benimRenk){secili=[sat,sut];hamleler=hamleBul(tahta,sat,sut)}
+    if(tahta[sat][sut]&&tr(tahta[sat][sut])===oyuncu){secili=[sat,sut];hamleler=hamleBul(tahta,sat,sut,true,rokHakki)}
     else{secili=null;hamleler=[]}
-  }else if(tahta[sat][sut]&&tr(tahta[sat][sut])===benimRenk){secili=[sat,sut];hamleler=hamleBul(tahta,sat,sut)}
+  }else if(tahta[sat][sut]&&tr(tahta[sat][sut])===oyuncu){secili=[sat,sut];hamleler=hamleBul(tahta,sat,sut,true,rokHakki)}
   ciz();
 });
 
-function odaOlustur(){
-  const ad=document.getElementById('isim').value.trim();
-  if(!ad)return alert('Adını gir!');
-  benimRenk='beyaz';
-  document.getElementById('menu').style.display='none';
-  document.getElementById('kodBox').style.display='block';
-  
-  peer=new SimplePeer({initiator:true});
-  
-  peer.on('signal',data=>{
-    const kod=btoa(JSON.stringify(data));
-    document.getElementById('kodText').textContent=kod;
-  });
-  
-  peer.on('connect',()=>{
-    bagli=true;
-    document.getElementById('kodBox').style.display='none';
-    document.getElementById('oyunBox').style.display='block';
-    document.getElementById('durumText').textContent='🎯 Sıra sende (Beyaz)';
-    ciz();
-  });
-  
-  peer.on('data',veri=>{
-    const msg=JSON.parse(veri.toString());
-    if(msg.t)tahta=msg.t;
-    secili=null;hamleler=[];
-    document.getElementById('durumText').textContent='🎯 Sıra sende (Beyaz)';
-    ciz();
-  });
-}
+// Zorluk değişimi
+document.getElementById('zorluk').addEventListener('change',function(){
+  zorlukSeviyesi=this.value;localStorage.setItem('zorluk',zorlukSeviyesi);
+});
 
-function odayaKatil(){
-  const ad=document.getElementById('isim').value.trim();
-  const kod=document.getElementById('kodInput').value.trim();
-  if(!ad||!kod)return alert('Adını ve kodu gir!');
-  benimRenk='siyah';
-  
-  try{
-    const sinyal=JSON.parse(atob(kod));
-    document.getElementById('menu').style.display='none';
-    document.getElementById('oyunBox').style.display='block';
-    document.getElementById('durumText').textContent='Bağlanıyor...';
-    
-    peer=new SimplePeer({initiator:false});
-    
-    peer.on('connect',()=>{
-      bagli=true;
-      document.getElementById('durumText').textContent='⏳ Rakip bekleniyor...';
-      ciz();
-    });
-    
-    peer.on('data',veri=>{
-      const msg=JSON.parse(veri.toString());
-      if(msg.t)tahta=msg.t;
-      secili=null;hamleler=[];
-      document.getElementById('durumText').textContent='🎯 Sıra sende (Siyah)';
-      ciz();
-    });
-    
-    peer.signal(sinyal);
-  }catch(e){
-    alert('Geçersiz kod! Hata: '+e.message);
-  }
-}
-
-function koduKopyala(){
-  const kod=document.getElementById('kodText').textContent;
-  if(kod)navigator.clipboard.writeText(kod).then(()=>alert('✅ Kopyalandı!'));
-}
-
-ciz();
+// BAŞLAT
+document.body.classList.toggle('tema-acik',!koyuTema);
+document.getElementById('insanBtn').classList.toggle('btn-aktif',oyunModu==='insan');
+document.getElementById('botBtn').classList.toggle('btn-aktif',oyunModu==='bot');
+document.getElementById('zorluk').style.display=oyunModu==='bot'?'inline':'none';
+document.getElementById('zorluk').value=zorlukSeviyesi;
+document.getElementById('sureSec').value=sureSaniye;
+document.getElementById('beyazSkor').textContent='⚪ '+beyazSkor;
+document.getElementById('siyahSkor').textContent='⚫ '+siyahSkor;
+yeniOyun();
 </script>
 </body>
 </html>
