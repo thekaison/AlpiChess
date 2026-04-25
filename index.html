@@ -3,866 +3,228 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlpiChess - Online Çalışan</title>
+  <title>AlpiChess - Test</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s; }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      font-family:'Segoe UI',sans-serif;
+      background:#1a1a2e;color:#fff;min-height:100vh;
+      display:flex;justify-content:center;align-items:center;padding:20px;
+    }
+    .container{max-width:600px;width:100%;text-align:center}
+    h1{color:#ffd700;margin-bottom:20px}
+    h1 span{color:#fff}
     
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
+    input{
+      padding:12px;border-radius:25px;border:none;
+      font-size:16px;text-align:center;margin:5px;width:200px
     }
-
-    body.tema-acik {
-      background: linear-gradient(135deg, #e8e0d5 0%, #d4c9b8 100%);
+    button{
+      padding:12px 25px;border-radius:25px;border:none;
+      font-weight:bold;cursor:pointer;font-size:16px;margin:5px
     }
-
-    .container {
-      max-width: 900px;
-      width: 100%;
+    .altin{background:#ffd700;color:#1a1a2e}
+    .yesil{background:#4CAF50;color:#fff}
+    .kirmizi{background:#e74c3c;color:#fff}
+    
+    .box{
+      background:rgba(255,255,255,0.1);padding:20px;
+      border-radius:20px;margin:15px 0;display:none
     }
-
-    .header {
-      text-align: center;
-      color: #ffd700;
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin-bottom: 10px;
-      text-shadow: 0 0 20px rgba(255,215,0,0.5);
+    .kod{font-size:1.5rem;color:#ffd700;font-weight:bold;word-break:break-all}
+    
+    canvas{
+      border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.5);
+      margin:15px auto;display:block;cursor:pointer
     }
-
-    .header .white { color: #fff; }
-
-    body.tema-acik .header { color: #c8a600; text-shadow: none; }
-    body.tema-acik .header .white { color: #3a3025; }
-
-    .mode-select {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin: 20px 0;
-    }
-
-    .mode-btn {
-      padding: 15px 30px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 15px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      cursor: pointer;
-      background: rgba(255,255,255,0.1);
-      color: white;
-      backdrop-filter: blur(5px);
-    }
-
-    .mode-btn.active {
-      background: #ffd700;
-      color: #1a1a2e;
-      border-color: #ffd700;
-      box-shadow: 0 0 20px rgba(255,215,0,0.5);
-    }
-
-    body.tema-acik .mode-btn { color: #3a3025; background: rgba(0,0,0,0.05); }
-    body.tema-acik .mode-btn.active { background: #c8a600; color: white; }
-
-    .satranc-kapsayici {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 25px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-      display: none;
-    }
-
-    .satranc-kapsayici.active { display: block; }
-
-    body.tema-acik .satranc-kapsayici {
-      background: rgba(255,255,255,0.3);
-      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    }
-
-    .ust-kontrol {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-    }
-
-    .sah-uyari {
-      background: #ff4444;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-weight: bold;
-      font-size: 0.9rem;
-      opacity: 0;
-    }
-
-    .sah-uyari.aktif {
-      opacity: 1;
-      animation: yanipSonme 1s infinite;
-    }
-
-    @keyframes yanipSonme {
-      0%, 100% { box-shadow: 0 0 15px rgba(255,0,0,0.5); }
-      50% { box-shadow: 0 0 30px rgba(255,0,0,0.9); }
-    }
-
-    .tema-buton {
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
-      font-size: 1.2rem;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    .online-lobi {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .online-lobi input {
-      padding: 12px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 25px;
-      background: rgba(0,0,0,0.3);
-      color: white;
-      font-size: 1rem;
-      text-align: center;
-      width: 180px;
-    }
-
-    .online-lobi input::placeholder { color: rgba(255,255,255,0.5); }
-
-    .oda-kodu-box {
-      text-align: center;
-      background: rgba(0,0,0,0.4);
-      padding: 15px;
-      border-radius: 15px;
-      margin: 15px 0;
-      display: none;
-    }
-
-    .oda-kodu-box .kod {
-      font-size: 2.5rem;
-      color: #ffd700;
-      font-weight: bold;
-      letter-spacing: 8px;
-    }
-
-    .oda-kodu-box p { color: white; margin: 5px 0; }
-
-    .game-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      color: white;
-    }
-
-    .player-box {
-      padding: 10px 20px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 15px;
-      text-align: center;
-      min-width: 100px;
-    }
-
-    .player-box.active {
-      background: rgba(255,215,0,0.3);
-      border: 2px solid #ffd700;
-      box-shadow: 0 0 15px rgba(255,215,0,0.3);
-    }
-
-    .player-name { font-weight: bold; font-size: 1.1rem; }
-    .player-color { font-size: 0.8rem; opacity: 0.8; }
-
-    canvas {
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      width: 100%;
-      max-width: 520px;
-      display: block;
-      margin: 0 auto;
-      cursor: pointer;
-      touch-action: none;
-    }
-
-    .alt-panel {
-      margin-top: 15px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .durum-metni {
-      flex: 1;
-      background: rgba(0,0,0,0.3);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 30px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 1.1rem;
-    }
-
-    .offline-options {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .offline-options select, .offline-options button {
-      padding: 10px 15px;
-      border-radius: 25px;
-      border: 2px solid rgba(255,255,255,0.3);
-      background: rgba(0,0,0,0.3);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .offline-options button.active {
-      background: #4CAF50;
-      border-color: #4CAF50;
-    }
-
-    .btn {
-      padding: 12px 25px;
-      border: none;
-      border-radius: 25px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    .btn-altin { background: #ffd700; color: #1a1a2e; }
-    .btn-kirmizi { background: #e74c3c; color: white; }
-    .btn-yesil { background: #4CAF50; color: white; }
-    .btn-mavi { background: #3498db; color: white; }
-
-    @media (max-width: 600px) {
-      .mode-select { flex-direction: column; }
-      .online-lobi { flex-direction: column; }
-      .offline-options { flex-direction: column; }
-      .header { font-size: 2rem; }
-      canvas { max-width: 100%; }
-      .game-header { flex-direction: column; gap: 10px; }
+    .durum{
+      background:rgba(0,0,0,0.3);padding:12px;border-radius:30px;
+      margin:10px 0;font-weight:bold
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">🏰 <span class="white">Alpi</span>Chess</div>
-    
-    <div class="mode-select">
-      <button class="mode-btn active" onclick="selectMode('offline')" id="offlineBtn">🏠 Offline</button>
-      <button class="mode-btn" onclick="selectMode('online')" id="onlineBtn">🌐 Online</button>
-    </div>
-
-    <!-- OFFLINE MOD -->
-    <div class="satranc-kapsayici active" id="offlineContainer">
-      <div class="ust-kontrol">
-        <div class="sah-uyari" id="sahUyariOff">⚠ ŞAH TEHDİDİ</div>
-        <button class="tema-buton" onclick="temaDegistir()">🌓</button>
-      </div>
-
-      <div class="offline-options">
-        <button class="active" id="insanInsanBtn" onclick="offlineModDegistir('insan')">👤 vs 👤</button>
-        <button id="botBtn" onclick="offlineModDegistir('bot')">🤖 vs 👤</button>
-        <select id="zorlukSecici" style="display:none">
-          <option value="kolay">🟢 Kolay</option>
-          <option value="orta" selected>🟡 Orta</option>
-          <option value="zor">🔴 Zor</option>
-        </select>
-      </div>
-
-      <canvas id="offlineCanvas" width="520" height="520"></canvas>
-      
-      <div class="alt-panel">
-        <div class="durum-metni" id="durumMetniOff">♟️ Beyaz oynuyor</div>
-        <button class="btn btn-altin" onclick="offlineYeniOyun()">🔄 Yeni Oyun</button>
-      </div>
-    </div>
-
-    <!-- ONLINE MOD -->
-    <div class="satranc-kapsayici" id="onlineContainer">
-      <div class="online-lobi" id="onlineLobi">
-        <input type="text" id="onlineIsim" placeholder="👤 Adın..." maxlength="15">
-        <button class="btn btn-altin" onclick="onlineOdaOlustur()">🎯 Oda Oluştur</button>
-        <span style="color:white;">veya</span>
-        <input type="text" id="onlineOdaKodu" placeholder="🔑 Oda Kodu" maxlength="6" style="text-transform:uppercase">
-        <button class="btn btn-yesil" onclick="onlineOdayaKatil()">🔗 Katıl</button>
-      </div>
-
-      <div class="oda-kodu-box" id="odaKoduBox">
-        <p>📢 Arkadaşına bu kodu gönder:</p>
-        <div class="kod" id="odaKoduText"></div>
-        <button class="btn btn-mavi" onclick="odaKodunuKopyala()" style="margin-top:10px;">📋 Kopyala</button>
-        <p style="font-size:0.8rem;margin-top:5px;">Arkadaşın katılana kadar bekle...</p>
-      </div>
-
-      <div id="onlineOyunEkrani" style="display:none;">
-        <div class="game-header">
-          <div class="player-box" id="beyazBox">
-            <div class="player-color">⚪ Beyaz</div>
-            <div class="player-name" id="beyazIsim">-</div>
-          </div>
-          <div style="color:white;font-size:1.5rem;">⚔️</div>
-          <div class="player-box" id="siyahBox">
-            <div class="player-color">⚫ Siyah</div>
-            <div class="player-name" id="siyahIsim">-</div>
-          </div>
-        </div>
-        
-        <canvas id="onlineCanvas" width="520" height="520"></canvas>
-        
-        <div class="alt-panel" style="margin-top:15px;">
-          <div class="durum-metni" id="durumMetniOn">Bağlanıyor...</div>
-          <button class="btn btn-kirmizi" onclick="onlineOyundanCik()">🚪 Çık</button>
-        </div>
-      </div>
-    </div>
+<div class="container">
+  <h1>🏰 <span>Alpi</span>Chess</h1>
+  
+  <div id="menu">
+    <input type="text" id="isim" placeholder="Adın..." maxlength="15"><br>
+    <button class="altin" onclick="odaOlustur()">🎯 Oda Oluştur</button><br>
+    <input type="text" id="kodInput" placeholder="Oda Kodunu Yapıştır">
+    <button class="yesil" onclick="odayaKatil()">🔗 Odaya Katıl</button>
   </div>
+  
+  <div class="box" id="kodBox">
+    <p>📢 ODA KODU (Karşı tarafa gönder):</p>
+    <div class="kod" id="kodText"></div>
+    <button class="yesil" onclick="koduKopyala()">📋 Kopyala</button>
+    <p style="margin-top:10px">Arkadaşın katılana kadar bekle...</p>
+  </div>
+  
+  <div class="box" id="oyunBox">
+    <div class="durum" id="durumText"></div>
+    <canvas id="tahta" width="480" height="480"></canvas>
+    <button class="kirmizi" onclick="location.reload()">🚪 Çık</button>
+  </div>
+</div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-peer@9.11.1/simplepeer.min.js"></script>
+<script>
+const canvas = document.getElementById('tahta');
+const ctx = canvas.getContext('2d');
+const K = 60;
+const SEMBOL = {r:'♜',n:'♞',b:'♝',q:'♛',k:'♚',p:'♟',R:'♖',N:'♘',B:'♗',Q:'♕',K:'♔',P:'♙'};
+const BASLA = [
+  ['r','n','b','q','k','b','n','r'],['p','p','p','p','p','p','p','p'],
+  [null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null],[null,null,null,null,null,null,null,null],
+  ['P','P','P','P','P','P','P','P'],['R','N','B','Q','K','B','N','R']
+];
 
-  <script>
-    // ============ FIREBASE YAPILANDIRMASI ============
-    const firebaseConfig = {
-      apiKey: "AIzaSyBm3nTZ8LpZQKxWYhHkGZLXmkVKkP0JhLs",
-      authDomain: "alpi-chess-online.firebaseapp.com",
-      databaseURL: "https://alpi-chess-online-default-rtdb.firebaseio.com",
-      projectId: "alpi-chess-online",
-      storageBucket: "alpi-chess-online.appspot.com",
-      messagingSenderId: "968473795262",
-      appId: "1:968473795262:web:ab155d0c5e7d0c3f5d1a2b"
-    };
+let tahta = JSON.parse(JSON.stringify(BASLA));
+let benimRenk = null;
+let secili = null;
+let hamleler = [];
+let peer = null;
+let bagli = false;
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+function tr(t){return t?(t===t.toUpperCase()?'beyaz':'siyah'):null}
 
-    // ============ GENEL DEĞİŞKENLER ============
-    let currentMode = 'offline';
-    let koyuTema = true;
+function hamleBul(t,sat,sut){
+  const tas=t[sat][sut];if(!tas)return[];
+  const rnk=tr(tas),h=[],trc=tas.toLowerCase();
+  
+  const ekle=(dx,dy,tk)=>{
+    for(let a=1;;a++){
+      const ys=sat+dy*a,xs=sut+dx*a;
+      if(ys<0||ys>7||xs<0||xs>7)break;
+      const ht=t[ys][xs];
+      if(!ht)h.push([ys,xs]);else{if(tr(ht)!==rnk)h.push([ys,xs]);break}
+      if(!tk)break;
+    }
+  };
+  
+  switch(trc){
+    case'p':
+      const y=rnk==='beyaz'?-1:1,bs=rnk==='beyaz'?6:1;
+      if(sat+y>=0&&sat+y<8&&!t[sat+y][sut]){h.push([sat+y,sut]);if(sat===bs&&!t[sat+2*y][sut])h.push([sat+2*y,sut])}
+      for(const c of[-1,1])if(sat+y>=0&&sat+y<8&&sut+c>=0&&sut+c<8&&t[sat+y][sut+c]&&tr(t[sat+y][sut+c])!==rnk)h.push([sat+y,sut+c]);
+      break;
+    case'n':for(const[dy,dx]of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]){const ys=sat+dy,xs=sut+dx;if(ys>=0&&ys<8&&xs>=0&&xs<8&&(!t[ys][xs]||tr(t[ys][xs])!==rnk))h.push([ys,xs])}break;
+    case'b':for(const[dx,dy]of[[1,1],[1,-1],[-1,1],[-1,-1]])ekle(dx,dy,true);break;
+    case'r':for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]])ekle(dx,dy,true);break;
+    case'q':for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]])ekle(dx,dy,true);break;
+    case'k':for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const ys=sat+dy,xs=sut+dx;if(ys>=0&&ys<8&&xs>=0&&xs<8&&(!t[ys][xs]||tr(t[ys][xs])!==rnk))h.push([ys,xs])}break;
+  }
+  return h;
+}
+
+function ciz(){
+  const ac='#f0d9b5',ko='#b58863';
+  for(let i=0;i<8;i++)for(let j=0;j<8;j++){ctx.fillStyle=(i+j)%2?ko:ac;ctx.fillRect(j*K,i*K,K,K)}
+  if(secili){const[ss,st]=secili;ctx.fillStyle='rgba(255,255,100,0.7)';ctx.fillRect(st*K,ss*K,K,K);hamleler.forEach(([hs,ht])=>{const cx=ht*K+K/2,cy=hs*K+K/2;ctx.beginPath();ctx.arc(cx,cy,tahta[hs][ht]?K/2-4:K/6,0,Math.PI*2);ctx.fillStyle=tahta[hs][ht]?'rgba(0,0,0,0.3)':'rgba(0,0,0,0.5)';ctx.fill()})}
+  ctx.font=`bold ${K*0.7}px "Segoe UI Symbol"`;ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(tahta[i][j]){const m=SEMBOL[tahta[i][j]],x=j*K+K/2,y=i*K+K/2+1;ctx.fillStyle='#1a1a1a';ctx.fillText(m,x+1,y+1);ctx.fillStyle=tahta[i][j]===tahta[i][j].toUpperCase()?'#fff':'#2f2f2f';ctx.fillText(m,x,y)}
+}
+
+function kareBul(ex,ey){
+  const r=canvas.getBoundingClientRect();
+  const sut=Math.floor((ex-r.left)/K),sat=Math.floor((ey-r.top)/K);
+  return(sat>=0&&sat<8&&sut>=0&&sut<8)?{sat,sut}:null;
+}
+
+canvas.addEventListener('click',e=>{
+  if(!bagli)return;
+  const k=kareBul(e.clientX,e.clientY);if(!k)return;
+  const{sat,sut}=k;
+  
+  if(secili){
+    const[ss,st]=secili;
+    if(ss===sat&&st===sut){secili=null;hamleler=[];ciz();return}
+    if(hamleler.some(([x,y])=>x===sat&&y===sut)){
+      tahta[sat][sut]=tahta[ss][st];tahta[ss][st]=null;
+      secili=null;hamleler=[];
+      peer.send(JSON.stringify({t:tahta}));
+      document.getElementById('durumText').textContent='⏳ Rakip bekleniyor...';
+      ciz();return;
+    }
+    if(tahta[sat][sut]&&tr(tahta[sat][sut])===benimRenk){secili=[sat,sut];hamleler=hamleBul(tahta,sat,sut)}
+    else{secili=null;hamleler=[]}
+  }else if(tahta[sat][sut]&&tr(tahta[sat][sut])===benimRenk){secili=[sat,sut];hamleler=hamleBul(tahta,sat,sut)}
+  ciz();
+});
+
+function odaOlustur(){
+  const ad=document.getElementById('isim').value.trim();
+  if(!ad)return alert('Adını gir!');
+  benimRenk='beyaz';
+  document.getElementById('menu').style.display='none';
+  document.getElementById('kodBox').style.display='block';
+  
+  peer=new SimplePeer({initiator:true});
+  
+  peer.on('signal',data=>{
+    const kod=btoa(JSON.stringify(data));
+    document.getElementById('kodText').textContent=kod;
+  });
+  
+  peer.on('connect',()=>{
+    bagli=true;
+    document.getElementById('kodBox').style.display='none';
+    document.getElementById('oyunBox').style.display='block';
+    document.getElementById('durumText').textContent='🎯 Sıra sende (Beyaz)';
+    ciz();
+  });
+  
+  peer.on('data',veri=>{
+    const msg=JSON.parse(veri.toString());
+    if(msg.t)tahta=msg.t;
+    secili=null;hamleler=[];
+    document.getElementById('durumText').textContent='🎯 Sıra sende (Beyaz)';
+    ciz();
+  });
+}
+
+function odayaKatil(){
+  const ad=document.getElementById('isim').value.trim();
+  const kod=document.getElementById('kodInput').value.trim();
+  if(!ad||!kod)return alert('Adını ve kodu gir!');
+  benimRenk='siyah';
+  
+  try{
+    const sinyal=JSON.parse(atob(kod));
+    document.getElementById('menu').style.display='none';
+    document.getElementById('oyunBox').style.display='block';
+    document.getElementById('durumText').textContent='Bağlanıyor...';
     
-    // Offline
-    let offlineTahta, offlineOyuncu, offlineSecili, offlineHamleler, offlineBitti, offlineMod='insan', offlineBotDusunuyor;
-    let offlineRokHakki = {};
+    peer=new SimplePeer({initiator:false});
     
-    // Online
-    let onlineTahta, onlineRenk, onlineOdaKodu, onlineOyuncuAdi, onlineSiradaki, onlineSecili, onlineHamleler;
-    let onlineRokHakki = {};
-    let onlineDinleyici = null;
-    
-    const KARE = 520 / 8;
-    const SEMBOL = { r:'♜',n:'♞',b:'♝',q:'♛',k:'♚',p:'♟', R:'♖',N:'♘',B:'♗',Q:'♕',K:'♔',P:'♙' };
-    const DEGER = { p:100, n:320, b:330, r:500, q:900, k:20000 };
-    const BASLA = [
-      ['r','n','b','q','k','b','n','r'],
-      ['p','p','p','p','p','p','p','p'],
-      [null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null],
-      [null,null,null,null,null,null,null,null],
-      ['P','P','P','P','P','P','P','P'],
-      ['R','N','B','Q','K','B','N','R']
-    ];
-
-    // ============ ORTAK FONKSİYONLAR ============
-    function tr(t) { return t ? (t===t.toUpperCase()?'beyaz':'siyah') : null; }
-    function rrk(r) { return r==='beyaz'?'siyah':'beyaz'; }
-    function koor(s,t) { return s>=0&&s<8&&t>=0&&t<8; }
-
-    function sahKonum(tahta, renk) {
-      const s = renk==='beyaz'?'K':'k';
-      for(let i=0;i<8;i++) for(let j=0;j<8;j++) if(tahta[i][j]===s) return[i,j];
-      return null;
-    }
-
-    function tahtaKopyala(t) { return t.map(s=>[...s]); }
-
-    function tahtaHamleli(t, bs, bt, hs, ht) {
-      const y = tahtaKopyala(t);
-      y[hs][ht] = y[bs][bt]; y[bs][bt] = null;
-      return y;
-    }
-
-    function tehditVar(t, sat, sut, saldiran) {
-      for(let i=0;i<8;i++) for(let j=0;j<8;j++)
-        if(t[i][j]&&tr(t[i][j])===saldiran)
-          if(hamleBul(t,i,j,false,{}).some(([x,y])=>x===sat&&y===sut)) return true;
-      return false;
-    }
-
-    function sahCek(t, renk) {
-      const k = sahKonum(t, renk);
-      return k ? tehditVar(t,k[0],k[1],rrk(renk)) : false;
-    }
-
-    function guvenliHamle(t, bs, bt, hs, ht, renk) {
-      return !sahCek(tahtaHamleli(t,bs,bt,hs,ht), renk);
-    }
-
-    function hamleBul(t, sat, sut, guv=true, rokHakki={}) {
-      const tas = t[sat][sut];
-      if(!tas) return [];
-      const renk = tr(tas), h = [], trc = tas.toLowerCase();
-
-      const yonEkle = (dx, dy, tekrar) => {
-        for(let a=1;;a++) {
-          const ys=sat+dy*a, xs=sut+dx*a;
-          if(!koor(ys,xs)) break;
-          const ht = t[ys][xs];
-          if(!ht) h.push([ys,xs]);
-          else { if(tr(ht)!==renk) h.push([ys,xs]); break; }
-          if(!tekrar) break;
-        }
-      };
-
-      switch(trc) {
-        case 'p':
-          const y = renk==='beyaz'?-1:1, bs = renk==='beyaz'?6:1;
-          if(koor(sat+y,sut)&&!t[sat+y][sut]) {
-            h.push([sat+y,sut]);
-            if(sat===bs&&!t[sat+2*y][sut]) h.push([sat+2*y,sut]);
-          }
-          for(const c of[-1,1])
-            if(koor(sat+y,sut+c)&&t[sat+y][sut+c]&&tr(t[sat+y][sut+c])!==renk) h.push([sat+y,sut+c]);
-          break;
-        case 'n':
-          for(const[dy,dx] of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]) {
-            const ys=sat+dy, xs=sut+dx;
-            if(koor(ys,xs)&&(!t[ys][xs]||tr(t[ys][xs])!==renk)) h.push([ys,xs]);
-          }
-          break;
-        case 'b': for(const[dx,dy] of[[1,1],[1,-1],[-1,1],[-1,-1]]) yonEkle(dx,dy,true); break;
-        case 'r': for(const[dx,dy] of[[1,0],[-1,0],[0,1],[0,-1]]) yonEkle(dx,dy,true); break;
-        case 'q': for(const[dx,dy] of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]) yonEkle(dx,dy,true); break;
-        case 'k':
-          for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++) {
-            if(!dx&&!dy) continue;
-            const ys=sat+dy, xs=sut+dx;
-            if(koor(ys,xs)&&(!t[ys][xs]||tr(t[ys][xs])!==renk)) h.push([ys,xs]);
-          }
-          // ROK
-          if(guv && rokHakki[renk]) {
-            const rk = rokHakki[renk], sr = renk==='beyaz'?7:0;
-            if(!sahCek(t,renk)) {
-              if(rk.buyuk && t[sr][0]===(renk==='beyaz'?'R':'r') && !t[sr][1]&&!t[sr][2]&&!t[sr][3] &&
-                 !tehditVar(t,sr,2,rrk(renk)) && !tehditVar(t,sr,3,rrk(renk))) h.push([sr,2]);
-              if(rk.kucuk && t[sr][7]===(renk==='beyaz'?'R':'r') && !t[sr][5]&&!t[sr][6] &&
-                 !tehditVar(t,sr,5,rrk(renk)) && !tehditVar(t,sr,6,rrk(renk))) h.push([sr,6]);
-            }
-          }
-          break;
-      }
-      return guv ? h.filter(([hs,ht])=>guvenliHamle(t,sat,sut,hs,ht,renk)) : h;
-    }
-
-    function hamleYapVeRokGuncelle(t, bs, bt, hs, ht, rk) {
-      const tas = t[bs][bt], yt = tahtaHamleli(t,bs,bt,hs,ht);
-      const yr = JSON.parse(JSON.stringify(rk));
-      const trc = tas.toLowerCase(), renk = tr(tas);
-      
-      if(trc==='k') {
-        if(yr[renk]) delete yr[renk];
-        if(Math.abs(bt-ht)===2) {
-          const sr = bs;
-          if(ht===6) { yt[sr][5]=yt[sr][7]; yt[sr][7]=null; }
-          else if(ht===2) { yt[sr][3]=yt[sr][0]; yt[sr][0]=null; }
-        }
-      }
-      if(trc==='r'&&yr[renk]) {
-        if(bt===0) yr[renk].buyuk=false;
-        if(bt===7) yr[renk].kucuk=false;
-      }
-      if(t[hs][ht]) {
-        const ytcs = t[hs][ht].toLowerCase(), yrnk = tr(t[hs][ht]);
-        if(ytcs==='r'&&yr[yrnk]) {
-          if(ht===0) yr[yrnk].buyuk=false;
-          if(ht===7) yr[yrnk].kucuk=false;
-        }
-      }
-      return {tahta:yt, rokHakki:yr};
-    }
-
-    function tumHamleler(t, renk, rk) {
-      const h = [];
-      for(let i=0;i<8;i++) for(let j=0;j<8;j++)
-        if(t[i][j]&&tr(t[i][j])===renk)
-          hamleBul(t,i,j,true,rk).forEach(([x,y])=>h.push({bas:[i,j],hedef:[x,y]}));
-      return h;
-    }
-
-    function tahtaDeger(t) {
-      let s=0;
-      for(let i=0;i<8;i++) for(let j=0;j<8;j++)
-        if(t[i][j]) s+=(tr(t[i][j])==='beyaz'?1:-1)*DEGER[t[i][j].toLowerCase()];
-      return s;
-    }
-
-    function kareBul(canvas, ex, ey) {
-      const r = canvas.getBoundingClientRect();
-      const ox=canvas.width/r.width, oy=canvas.height/r.height;
-      const sut=Math.floor((ex-r.left)*ox/KARE), sat=Math.floor((ey-r.top)*oy/KARE);
-      return (sat>=0&&sat<8&&sut>=0&&sut<8)?{sat,sut}:null;
-    }
-
-    function tahtaCiz(ctx, t, sec, ham, sahkntrl, aktifRnk) {
-      const ac=koyuTema?'#f0d9b5':'#e8dcc8', ko=koyuTema?'#b58863':'#8b7355';
-      for(let i=0;i<8;i++) for(let j=0;j<8;j++) {
-        ctx.fillStyle=(i+j)%2===0?ac:ko;
-        ctx.fillRect(j*KARE,i*KARE,KARE,KARE);
-      }
-      if(sahkntrl&&aktifRnk&&sahCek(t,aktifRnk)) {
-        const[ss,st]=sahKonum(t,aktifRnk);
-        ctx.fillStyle='rgba(255,0,0,0.5)';
-        ctx.fillRect(st*KARE,ss*KARE,KARE,KARE);
-      }
-      if(sec) {
-        const[ss,st]=sec;
-        ctx.fillStyle='rgba(255,255,100,0.7)';
-        ctx.fillRect(st*KARE,ss*KARE,KARE,KARE);
-        ham.forEach(([hs,ht])=>{
-          const cx=ht*KARE+KARE/2, cy=hs*KARE+KARE/2;
-          ctx.beginPath();
-          if(t[hs][ht]) {
-            ctx.arc(cx,cy,KARE/2-4,0,Math.PI*2);
-            ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fill();
-            ctx.strokeStyle='rgba(0,0,0,0.8)';ctx.lineWidth=3;ctx.stroke();
-          } else {
-            const tas=t[ss]?.[st];
-            if(tas&&tas.toLowerCase()==='k'&&Math.abs(st-ht)===2) {
-              ctx.arc(cx,cy,KARE/3,0,Math.PI*2);
-              ctx.fillStyle='rgba(0,150,255,0.7)';ctx.fill();
-              ctx.strokeStyle='rgba(0,100,200,0.9)';ctx.lineWidth=2;ctx.stroke();
-            } else {
-              ctx.arc(cx,cy,KARE/6,0,Math.PI*2);
-              ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fill();
-            }
-          }
-        });
-      }
-      ctx.font=`bold ${KARE*0.72}px "Segoe UI Symbol","Arial Unicode MS"`;
-      ctx.textAlign='center';ctx.textBaseline='middle';
-      for(let i=0;i<8;i++) for(let j=0;j<8;j++) if(t[i][j]) {
-        const m=SEMBOL[t[i][j]], x=j*KARE+KARE/2, y=i*KARE+KARE/2+1;
-        ctx.fillStyle='#1a1a1a';ctx.fillText(m,x+1.5,y+1.5);
-        ctx.fillStyle=t[i][j]===t[i][j].toUpperCase()?'#fff':'#2f2f2f';
-        ctx.fillText(m,x,y);
-        ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.strokeText(m,x,y);
-      }
-    }
-
-    // ============ OFFLINE ============
-    function offlineYeniOyun() {
-      offlineTahta=JSON.parse(JSON.stringify(BASLA));
-      offlineOyuncu='beyaz'; offlineSecili=null; offlineHamleler=[]; offlineBitti=false; offlineBotDusunuyor=false;
-      offlineRokHakki={beyaz:{buyuk:true,kucuk:true},siyah:{buyuk:true,kucuk:true}};
-      document.getElementById('sahUyariOff').classList.remove('aktif');
-      document.getElementById('durumMetniOff').textContent='♟️ Beyaz oynuyor';
-      offlineCiz();
-      if(offlineMod==='bot'&&offlineOyuncu==='siyah') setTimeout(offlineBotOyna,500);
-    }
-
-    function offlineModDegistir(m) {
-      offlineMod=m;
-      document.getElementById('insanInsanBtn').classList.toggle('active',m==='insan');
-      document.getElementById('botBtn').classList.toggle('active',m==='bot');
-      document.getElementById('zorlukSecici').style.display=m==='bot'?'inline':'none';
-      offlineYeniOyun();
-    }
-
-    function offlineBotOyna() {
-      if(offlineBitti||offlineOyuncu!=='siyah') return;
-      offlineBotDusunuyor=true;
-      document.getElementById('durumMetniOff').textContent='🤖 Bot düşünüyor...';
-      setTimeout(()=>{
-        const h=tumHamleler(offlineTahta,'siyah',offlineRokHakki);
-        if(!h.length){offlineBotDusunuyor=false;offlineCiz();return;}
-        const z=document.getElementById('zorlukSecici').value;
-        let ham;
-        if(z==='kolay') ham=h[Math.floor(Math.random()*h.length)];
-        else if(z==='orta') {
-          const ye=h.filter(x=>offlineTahta[x.hedef[0]][x.hedef[1]]);
-          ham=(ye.length&&Math.random()>0.3)?ye[Math.floor(Math.random()*ye.length)]:h[Math.floor(Math.random()*h.length)];
-        } else {
-          let enIyi=h[0],enIyiD=-Infinity;
-          for(const x of h){
-            const s=hamleYapVeRokGuncelle(offlineTahta,x.bas[0],x.bas[1],x.hedef[0],x.hedef[1],offlineRokHakki);
-            const d=tahtaDeger(s.tahta);
-            if(d>enIyiD){enIyiD=d;enIyi=x;}
-          }
-          ham=enIyi;
-        }
-        const s=hamleYapVeRokGuncelle(offlineTahta,ham.bas[0],ham.bas[1],ham.hedef[0],ham.hedef[1],offlineRokHakki);
-        offlineTahta=s.tahta; offlineRokHakki=s.rokHakki; offlineOyuncu='beyaz';
-        offlineBotDusunuyor=false;
-        if(tumHamleler(offlineTahta,'beyaz',offlineRokHakki).length===0) {
-          offlineBitti=true;
-          document.getElementById('durumMetniOff').textContent=sahCek(offlineTahta,'beyaz')?'Siyah kazandı! Şah mat':'Berabere! Pat';
-        }
-        offlineCiz();
-      },500);
-    }
-
-    function offlineHamleYap(bs,bt,hs,ht) {
-      if(offlineBitti||offlineBotDusunuyor||(offlineMod==='bot'&&offlineOyuncu==='siyah')) return;
-      if(hamleBul(offlineTahta,bs,bt,true,offlineRokHakki).some(([x,y])=>x===hs&&y===ht)) {
-        const s=hamleYapVeRokGuncelle(offlineTahta,bs,bt,hs,ht,offlineRokHakki);
-        offlineTahta=s.tahta; offlineRokHakki=s.rokHakki; offlineOyuncu=rrk(offlineOyuncu);
-        offlineSecili=null;offlineHamleler=[];
-        if(tumHamleler(offlineTahta,offlineOyuncu,offlineRokHakki).length===0) {
-          offlineBitti=true;
-          document.getElementById('durumMetniOff').textContent=sahCek(offlineTahta,offlineOyuncu)?
-            (offlineOyuncu==='beyaz'?'Siyah kazandı! Şah mat':'Beyaz kazandı! Şah mat'):'Berabere! Pat';
-        }
-        offlineCiz();
-        if(!offlineBitti&&offlineMod==='bot'&&offlineOyuncu==='siyah') setTimeout(offlineBotOyna,500);
-      }
-    }
-
-    function offlineCiz() {
-      const c=document.getElementById('offlineCanvas'), ctx=c.getContext('2d');
-      tahtaCiz(ctx,offlineTahta,offlineSecili,offlineHamleler,true,offlineOyuncu);
-      const u=document.getElementById('sahUyariOff');
-      sahCek(offlineTahta,offlineOyuncu)?u.classList.add('aktif'):u.classList.remove('aktif');
-      if(!offlineBitti&&!offlineBotDusunuyor)
-        document.getElementById('durumMetniOff').textContent=`♟️ ${offlineOyuncu==='beyaz'?'Beyaz':'Siyah'} oynuyor`;
-    }
-
-    document.getElementById('offlineCanvas').addEventListener('click',(e)=>{
-      if(currentMode!=='offline'||offlineBitti||offlineBotDusunuyor) return;
-      if(offlineMod==='bot'&&offlineOyuncu==='siyah') return;
-      const k=kareBul(document.getElementById('offlineCanvas'),e.clientX,e.clientY);
-      if(!k) return;
-      const{sat,sut}=k;
-      if(offlineSecili){
-        const[ss,st]=offlineSecili;
-        if(ss===sat&&st===sut){offlineSecili=null;offlineHamleler=[];offlineCiz();return;}
-        if(offlineHamleler.some(([x,y])=>x===sat&&y===sut)){offlineHamleYap(ss,st,sat,sut);return;}
-        if(offlineTahta[sat][sut]&&tr(offlineTahta[sat][sut])===offlineOyuncu)
-          {offlineSecili=[sat,sut];offlineHamleler=hamleBul(offlineTahta,sat,sut,true,offlineRokHakki);}
-        else{offlineSecili=null;offlineHamleler=[];}
-      }else if(offlineTahta[sat][sut]&&tr(offlineTahta[sat][sut])===offlineOyuncu)
-        {offlineSecili=[sat,sut];offlineHamleler=hamleBul(offlineTahta,sat,sut,true,offlineRokHakki);}
-      offlineCiz();
+    peer.on('connect',()=>{
+      bagli=true;
+      document.getElementById('durumText').textContent='⏳ Rakip bekleniyor...';
+      ciz();
     });
-
-    // ============ ONLINE ============
-    function onlineOdaOlustur() {
-      onlineOyuncuAdi = document.getElementById('onlineIsim').value.trim();
-      if(!onlineOyuncuAdi) return alert('⚠️ Lütfen adını gir!');
-      
-      onlineOdaKodu = Math.random().toString(36).substring(2,8).toUpperCase();
-      onlineRenk = 'beyaz';
-      onlineTahta = JSON.parse(JSON.stringify(BASLA));
-      onlineSiradaki = 'beyaz';
-      onlineSecili = null;
-      onlineHamleler = [];
-      onlineRokHakki = {beyaz:{buyuk:true,kucuk:true},siyah:{buyuk:true,kucuk:true}};
-      
-      document.getElementById('odaKoduText').textContent = onlineOdaKodu;
-      document.getElementById('odaKoduBox').style.display = 'block';
-      document.getElementById('onlineLobi').style.display = 'none';
-      
-      // Firebase'e yaz
-      database.ref('oyunlar/' + onlineOdaKodu).set({
-        tahta: onlineTahta,
-        siradaki: 'beyaz',
-        beyazAd: onlineOyuncuAdi,
-        siyahAd: null,
-        durum: 'bekleniyor',
-        rokHakki: onlineRokHakki
-      }).then(() => {
-        console.log('✅ Oda oluşturuldu:', onlineOdaKodu);
-      }).catch(err => {
-        console.error('❌ Firebase hatası:', err);
-        alert('Bağlantı hatası! Lütfen tekrar dene.');
-        document.getElementById('odaKoduBox').style.display = 'none';
-        document.getElementById('onlineLobi').style.display = 'flex';
-      });
-      
-      // Dinlemeye başla
-      if(onlineDinleyici) database.ref('oyunlar/' + onlineOdaKodu).off();
-      onlineDinleyici = database.ref('oyunlar/' + onlineOdaKodu);
-      onlineDinleyici.on('value', onlineVeriDinle);
-    }
-
-    function onlineOdayaKatil() {
-      onlineOyuncuAdi = document.getElementById('onlineIsim').value.trim();
-      onlineOdaKodu = document.getElementById('onlineOdaKodu').value.trim().toUpperCase();
-      
-      if(!onlineOyuncuAdi) return alert('⚠️ Lütfen adını gir!');
-      if(!onlineOdaKodu) return alert('⚠️ Lütfen oda kodunu gir!');
-      
-      database.ref('oyunlar/' + onlineOdaKodu).once('value', snapshot => {
-        const oyun = snapshot.val();
-        if(!oyun) return alert('❌ Oda bulunamadı! Kodu kontrol et.');
-        if(oyun.siyahAd) return alert('❌ Oda dolu! Başka bir oda dene.');
-        if(oyun.durum === 'oyunda') return alert('❌ Oyun zaten başlamış!');
-        
-        onlineRenk = 'siyah';
-        
-        database.ref('oyunlar/' + onlineOdaKodu).update({
-          siyahAd: onlineOyuncuAdi,
-          durum: 'oyunda'
-        }).then(() => {
-          console.log('✅ Odaya katıldı:', onlineOdaKodu);
-        }).catch(err => {
-          console.error('❌ Firebase hatası:', err);
-          alert('Bağlantı hatası!');
-        });
-        
-        document.getElementById('odaKoduBox').style.display = 'none';
-        document.getElementById('onlineLobi').style.display = 'none';
-        
-        if(onlineDinleyici) database.ref('oyunlar/' + onlineOdaKodu).off();
-        onlineDinleyici = database.ref('oyunlar/' + onlineOdaKodu);
-        onlineDinleyici.on('value', onlineVeriDinle);
-      });
-    }
-
-    function onlineVeriDinle(snapshot) {
-      const oyun = snapshot.val();
-      if(!oyun) {
-        // Oda silindi
-        document.getElementById('onlineOyunEkrani').style.display = 'none';
-        document.getElementById('onlineLobi').style.display = 'flex';
-        document.getElementById('odaKoduBox').style.display = 'none';
-        alert('⚠️ Oda kapatıldı!');
-        if(onlineDinleyici) onlineDinleyici.off();
-        onlineDinleyici = null;
-        return;
-      }
-      
-      onlineTahta = oyun.tahta || onlineTahta;
-      onlineSiradaki = oyun.siradaki || 'beyaz';
-      onlineRokHakki = oyun.rokHakki || {beyaz:{buyuk:false,kucuk:false},siyah:{buyuk:false,kucuk:false}};
-      
-      document.getElementById('beyazIsim').textContent = oyun.beyazAd || 'Bekleniyor...';
-      document.getElementById('siyahIsim').textContent = oyun.siyahAd || 'Bekleniyor...';
-      
-      if(oyun.durum === 'oyunda') {
-        document.getElementById('odaKoduBox').style.display = 'none';
-        document.getElementById('onlineOyunEkrani').style.display = 'block';
-        
-        document.getElementById('beyazBox').classList.toggle('active', onlineSiradaki==='beyaz');
-        document.getElementById('siyahBox').classList.toggle('active', onlineSiradaki==='siyah');
-        
-        const benimSira = onlineSiradaki === onlineRenk;
-        document.getElementById('durumMetniOn').textContent = benimSira ? 
-          '🎯 Sıra sende!' : '⏳ Rakip bekleniyor...';
-        
-        onlineCiz();
-      }
-    }
-
-    function onlineCiz() {
-      const c = document.getElementById('onlineCanvas');
-      const ctx = c.getContext('2d');
-      tahtaCiz(ctx, onlineTahta, onlineSecili, onlineHamleler, true, onlineSiradaki);
-    }
-
-    document.getElementById('onlineCanvas').addEventListener('click', (e) => {
-      if(currentMode !== 'online') return;
-      if(onlineSiradaki !== onlineRenk) return;
-      if(!onlineOdaKodu) return;
-      
-      const k = kareBul(document.getElementById('onlineCanvas'), e.clientX, e.clientY);
-      if(!k) return;
-      
-      const {sat, sut} = k;
-      if(onlineSecili) {
-        const [ss, st] = onlineSecili;
-        if(ss===sat && st===sut) { onlineSecili=null; onlineHamleler=[]; onlineCiz(); return; }
-        if(onlineHamleler.some(([x,y]) => x===sat && y===sut)) {
-          const sonuc = hamleYapVeRokGuncelle(onlineTahta, ss, st, sat, sut, onlineRokHakki);
-          
-          database.ref('oyunlar/' + onlineOdaKodu).update({
-            tahta: sonuc.tahta,
-            siradaki: rrk(onlineRenk),
-            rokHakki: sonuc.rokHakki
-          });
-          
-          onlineSecili = null;
-          onlineHamleler = [];
-          return;
-        }
-        if(onlineTahta[sat][sut] && tr(onlineTahta[sat][sut])===onlineRenk) {
-          onlineSecili = [sat, sut];
-          onlineHamleler = hamleBul(onlineTahta, sat, sut, true, onlineRokHakki);
-        } else { onlineSecili=null; onlineHamleler=[]; }
-      } else if(onlineTahta[sat][sut] && tr(onlineTahta[sat][sut])===onlineRenk) {
-        onlineSecili = [sat, sut];
-        onlineHamleler = hamleBul(onlineTahta, sat, sut, true, onlineRokHakki);
-      }
-      onlineCiz();
+    
+    peer.on('data',veri=>{
+      const msg=JSON.parse(veri.toString());
+      if(msg.t)tahta=msg.t;
+      secili=null;hamleler=[];
+      document.getElementById('durumText').textContent='🎯 Sıra sende (Siyah)';
+      ciz();
     });
+    
+    peer.signal(sinyal);
+  }catch(e){
+    alert('Geçersiz kod! Hata: '+e.message);
+  }
+}
 
-    function odaKodunuKopyala() {
-      navigator.clipboard.writeText(onlineOdaKodu).then(() => {
-        alert('✅ Oda kodu kopyalandı! WhatsApp ile arkadaşına gönder.');
-      });
-    }
+function koduKopyala(){
+  const kod=document.getElementById('kodText').textContent;
+  if(kod)navigator.clipboard.writeText(kod).then(()=>alert('✅ Kopyalandı!'));
+}
 
-    function onlineOyundanCik() {
-      if(onlineOdaKodu && onlineDinleyici) {
-        database.ref('oyunlar/' + onlineOdaKodu).remove();
-        onlineDinleyici.off();
-        onlineDinleyici = null;
-      }
-      document.getElementById('onlineOyunEkrani').style.display = 'none';
-      document.getElementById('onlineLobi').style.display = 'flex';
-      document.getElementById('odaKoduBox').style.display = 'none';
-      document.getElementById('onlineOdaKodu').value = '';
-    }
-
-    // ============ GENEL ============
-    function selectMode(mode) {
-      currentMode = mode;
-      document.getElementById('offlineBtn').classList.toggle('active', mode==='offline');
-      document.getElementById('onlineBtn').classList.toggle('active', mode==='online');
-      document.getElementById('offlineContainer').classList.toggle('active', mode==='offline');
-      document.getElementById('onlineContainer').classList.toggle('active', mode==='online');
-      
-      if(mode==='offline') offlineYeniOyun();
-      if(mode==='online') {
-        if(onlineDinleyici) { onlineDinleyici.off(); onlineDinleyici=null; }
-        document.getElementById('onlineOyunEkrani').style.display='none';
-        document.getElementById('onlineLobi').style.display='flex';
-        document.getElementById('odaKoduBox').style.display='none';
-      }
-    }
-
-    function temaDegistir() {
-      koyuTema = !koyuTema;
-      document.body.classList.toggle('tema-acik', !koyuTema);
-      if(currentMode==='offline') offlineCiz();
-      if(currentMode==='online' && document.getElementById('onlineOyunEkrani').style.display==='block') onlineCiz();
-    }
-
-    // BAŞLANGIÇ
-    offlineMod = 'insan';
-    offlineYeniOyun();
-  </script>
+ciz();
+</script>
 </body>
 </html>
