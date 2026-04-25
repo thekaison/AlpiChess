@@ -58,13 +58,6 @@
     
     .ust-sag{display:flex;align-items:center;gap:10px}
     
-    .skor-box{
-      background:rgba(0,0,0,0.3);padding:8px 15px;
-      border-radius:30px;color:#ffd700;font-weight:bold;
-      font-size:0.9rem;
-    }
-    body.tema-acik .skor-box{color:#3a3025;background:rgba(255,255,255,0.5)}
-    
     .tema-btn{
       background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);
       color:#fff;font-size:1.2rem;width:40px;height:40px;
@@ -91,6 +84,7 @@
       border:2px solid rgba(255,255,255,0.3);
       background:rgba(0,0,0,0.3);color:#fff;
       font-weight:bold;cursor:pointer;font-size:0.95rem;
+      -webkit-appearance:none;appearance:none;
     }
     body.tema-acik select,body.tema-acik .mod-btn{
       background:rgba(255,255,255,0.5);color:#3a3025;border-color:#b8a88a;
@@ -145,8 +139,7 @@
     <div class="ust-row">
       <div class="sah-uyari" id="sahUyari">⚠ ŞAH TEHDİDİ</div>
       <div class="ust-sag">
-        <span class="skor-box" id="beyazSkor">⚪ Beyaz: 0</span>
-        <span class="skor-box" id="siyahSkor">⚫ Siyah: 0</span>
+        <button class="tema-btn" onclick="tahtaRengiDegis()" title="Tahta Rengi">🎨</button>
         <button class="tema-btn" onclick="temaDegis()" title="Tema">🌓</button>
       </div>
     </div>
@@ -159,12 +152,19 @@
         <option value="orta" selected>🟡 Orta</option>
         <option value="zor">🔴 Zor</option>
       </select>
+      <select id="botRenkSec" style="display:none">
+        <option value="siyah" selected>🤖 Siyah (Bot)</option>
+        <option value="beyaz">🤖 Beyaz (Bot)</option>
+      </select>
       <select id="sureSec" onchange="sureDegis()">
         <option value="0">⏰ Süresiz</option>
+        <option value="60">⏰ 1 Dakika</option>
         <option value="180" selected>⏰ 3 Dakika</option>
         <option value="300">⏰ 5 Dakika</option>
         <option value="600">⏰ 10 Dakika</option>
       </select>
+      <button class="mod-btn" onclick="undo()" title="Geri Al">↩️</button>
+      <button class="mod-btn" onclick="redo()" title="İleri Al">↪️</button>
     </div>
     
     <div class="zaman-gostergesi" id="zamanBox">⚪ 3:00 | 3:00 ⚫</div>
@@ -199,6 +199,13 @@ const BASLA = [
   ['R','N','B','Q','K','B','N','R']
 ];
 
+const tahtaRenkleri = [
+  {acik:'#f0d9b5',koyu:'#b58863'},
+  {acik:'#e8dcc8',koyu:'#8b7355'},
+  {acik:'#c8d6c0',koyu:'#5a7d4a'},
+  {acik:'#d4c4a8',koyu:'#6b4c3b'},
+];
+
 // ============ LOCALSTORAGE ============
 function kaydet(a,d){localStorage.setItem(a,JSON.stringify(d))}
 function yukle(a,v){try{return JSON.parse(localStorage.getItem(a))??v}catch(e){return v}}
@@ -207,16 +214,91 @@ let koyuTema = yukle('tema',true);
 let oyunModu = yukle('mod','insan');
 let zorluk = yukle('zorluk','orta');
 let sureSaniye = yukle('sure',180);
-let bSkor = yukle('bSkor',0);
-let sSkor = yukle('sSkor',0);
+let tahtaRenkIndex = yukle('tahtaRenk',0);
+let botRenk = yukle('botRenk','siyah');
 
 // ============ OYUN ============
 let tahta, oyuncu, secili, hamleler, bitti, botDusuyor;
 let bSure, sSure, sureInt;
 let rokHakki;
 let gecerkenAlma = null;
-let hamleSayisi = 0;
+let sonHamle = null;
 
+// ============ UNDO / REDO ============
+let hamleGecmisi = [];
+let gecmisIndex = -1;
+
+function durumuKaydet() {
+    if (gecmisIndex < hamleGecmisi.length - 1) {
+        hamleGecmisi = hamleGecmisi.slice(0, gecmisIndex + 1);
+    }
+    
+    const durum = {
+        tahta: JSON.parse(JSON.stringify(tahta)),
+        oyuncu: oyuncu,
+        rokHakki: JSON.parse(JSON.stringify(rokHakki)),
+        gecerkenAlma: gecerkenAlma ? [...gecerkenAlma] : null,
+        sonHamle: sonHamle ? [...sonHamle] : null,
+        bSure: bSure,
+        sSure: sSure
+    };
+    hamleGecmisi.push(durum);
+    gecmisIndex++;
+}
+
+function undo() {
+    if (gecmisIndex > 0) {
+        gecmisIndex--;
+        durumuYukle(hamleGecmisi[gecmisIndex]);
+        if (oyunModu === 'bot') {
+            // Eğer geri alınca tekrar botun sırası geldiyse ve bir önceki durumda hamle yapma sırası botta ise
+            // ve şu anki durumda botun sırası değilse sorun yok, kullanıcı oynar.
+            // Eğer geri alınca botun sırası geldiyse, botun oynaması gerekebilir.
+            if (!bitti && oyuncu === botRenk) {
+                setTimeout(botOyna, 300);
+            }
+        }
+    }
+}
+
+function redo() {
+    if (gecmisIndex < hamleGecmisi.length - 1) {
+        gecmisIndex++;
+        durumuYukle(hamleGecmisi[gecmisIndex]);
+        if (oyunModu === 'bot') {
+            if (!bitti && oyuncu === botRenk) {
+                setTimeout(botOyna, 300);
+            }
+        }
+    }
+}
+
+function durumuYukle(durum) {
+    tahta = JSON.parse(JSON.stringify(durum.tahta));
+    oyuncu = durum.oyuncu;
+    rokHakki = JSON.parse(JSON.stringify(durum.rokHakki));
+    gecerkenAlma = durum.gecerkenAlma ? [...durum.gecerkenAlma] : null;
+    sonHamle = durum.sonHamle ? [...durum.sonHamle] : null;
+    bSure = durum.bSure;
+    sSure = durum.sSure;
+    secili = null;
+    hamleler = [];
+    
+    // Eğer geri alınan durumda oyun bitmişse, oyunBitti kontrolünü yap
+    if (bitti) {
+        // Oyunun bitme durumunu kontrol et
+        const tum = tumHamleler(tahta, oyuncu);
+        if (tum.length > 0) {
+            bitti = false;
+            document.getElementById('sahUyari').classList.remove('aktif');
+        }
+    }
+    
+    ciz();
+    durumGuncelle();
+}
+
+// ============ YARDIMCI FONKSİYONLAR ============
 function tr(t){return t?(t===t.toUpperCase()?'beyaz':'siyah'):null}
 function rrk(r){return r==='beyaz'?'siyah':'beyaz'}
 function gecerli(s,t){return s>=0&&s<8&&t>=0&&t<8}
@@ -305,13 +387,25 @@ function tumHamleler(t,rnk){
 function hamleYap(bs,bt,hs,ht){
   const tas=tahta[bs][bt],rnk=tr(tas),tur=tas.toLowerCase();
   
+  // Geçerken alma
   if(tur==='p'&&!tahta[hs][ht]&&bt!==ht&&hs===gecerkenAlma?.[0]&&ht===gecerkenAlma?.[1])
     tahta[bs][ht]=null;
   
   tahta[hs][ht]=tas;tahta[bs][bt]=null;
-  gecerkenAlma=null;
   
+  // Son hamleyi kaydet
+  sonHamle = [bs, bt, hs, ht];
+  
+  // Geçerken alma karesi
+  gecerkenAlma=null;
   if(tur==='p'&&Math.abs(bs-hs)===2)gecerkenAlma=[bs+(rnk==='beyaz'?-1:1),bt];
+  
+  // PİYON TERFİSİ (otomatik vezir)
+  if(tur==='p'&&(hs===0||hs===7)){
+    tahta[hs][ht] = rnk==='beyaz'?'Q':'q';
+  }
+  
+  // Rok
   if(tur==='k'&&Math.abs(bt-ht)===2){
     const sr=bs;
     if(ht===6){tahta[sr][5]=tahta[sr][7];tahta[sr][7]=null}
@@ -320,7 +414,6 @@ function hamleYap(bs,bt,hs,ht){
   
   if(tur==='k'&&rokHakki[rnk])delete rokHakki[rnk];
   if(tur==='r'&&rokHakki[rnk]){if(bt===0)rokHakki[rnk].buyuk=false;if(bt===7)rokHakki[rnk].kucuk=false}
-  hamleSayisi++;
 }
 
 function oyunKontrol(){
@@ -335,22 +428,18 @@ function oyunKontrol(){
 
 function oyunBitir(kazanan,mesaj){
   bitti=true;clearInterval(sureInt);
-  if(kazanan==='beyaz'){bSkor++;kaydet('bSkor',bSkor)}
-  else if(kazanan==='siyah'){sSkor++;kaydet('sSkor',sSkor)}
   document.getElementById('durumText').textContent=mesaj;
-  document.getElementById('beyazSkor').textContent=`⚪ Beyaz: ${bSkor}`;
-  document.getElementById('siyahSkor').textContent=`⚫ Siyah: ${sSkor}`;
   document.getElementById('sahUyari').classList.remove('aktif');
   document.getElementById('zamanBox').classList.remove('tehlike');
 }
 
 // ============ BOT ============
 function botOyna(){
-  if(bitti||oyuncu!=='siyah'||botDusuyor)return;
+  if(bitti||oyuncu!==botRenk||botDusuyor)return;
   botDusuyor=true;
   document.getElementById('durumText').textContent='🤖 Bot düşünüyor...';
   setTimeout(()=>{
-    const tum=tumHamleler(tahta,'siyah');
+    const tum=tumHamleler(tahta,botRenk);
     if(!tum.length){botDusuyor=false;return}
     let ham;
     if(zorluk==='kolay')ham=tum[Math.floor(Math.random()*tum.length)];
@@ -361,14 +450,19 @@ function botOyna(){
       let enIyi=tum[0],enIyiD=-Infinity;
       for(const h of tum){
         const yt=hamleli(tahta,h.bas[0],h.bas[1],h.hedef[0],h.hedef[1]);
-        let s=0;for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(yt[i][j])s+=(tr(yt[i][j])==='siyah'?1:-1)*DEGER[yt[i][j].toLowerCase()];
+        let s=0;for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(yt[i][j])s+=(tr(yt[i][j])===botRenk?1:-1)*DEGER[yt[i][j].toLowerCase()];
         if(s>enIyiD){enIyiD=s;enIyi=h;}
       }
       ham=enIyi;
     }
     hamleYap(ham.bas[0],ham.bas[1],ham.hedef[0],ham.hedef[1]);
-    oyuncu='beyaz';secili=null;hamleler=[];
-    if(!oyunKontrol())document.getElementById('durumText').textContent='♟️ Beyaz oynuyor';
+    oyuncu=rrk(botRenk);
+    secili=null;hamleler=[];
+    
+    // Geçmişe kaydet
+    durumuKaydet();
+    
+    if(!oyunKontrol())document.getElementById('durumText').textContent=`♟️ ${oyuncu==='beyaz'?'Beyaz':'Siyah'} oynuyor`;
     botDusuyor=false;ciz();durumGuncelle();
   },500);
 }
@@ -403,17 +497,29 @@ function sureBaslat(){
 
 // ============ ÇİZİM ============
 function ciz(){
-  const ac=koyuTema?'#f0d9b5':'#e8dcc8',ko=koyuTema?'#b58863':'#8b7355';
-  for(let i=0;i<8;i++)for(let j=0;j<8;j++){ctx.fillStyle=(i+j)%2?ko:ac;ctx.fillRect(j*KARE,i*KARE,KARE,KARE)}
+  const trk = tahtaRenkleri[tahtaRenkIndex];
+  const ac = trk.acik, ko = trk.koyu;
+  
+  for(let i=0;i<8;i++)for(let j=0;j<8;j++){
+    ctx.fillStyle=(i+j)%2?ko:ac;
+    ctx.fillRect(j*KARE,i*KARE,KARE,KARE);
+  }
   
   if(gecerkenAlma&&!bitti){
-    ctx.fillStyle='rgba(0,255,100,0.3)';
+    ctx.fillStyle='rgba(0,255,100,0.4)';
     ctx.fillRect(gecerkenAlma[1]*KARE,gecerkenAlma[0]*KARE,KARE,KARE);
+  }
+  
+  if(sonHamle&&!bitti){
+    const[bs,bt,hs,ht]=sonHamle;
+    ctx.fillStyle='rgba(255,255,0,0.3)';
+    ctx.fillRect(bt*KARE,bs*KARE,KARE,KARE);
+    ctx.fillRect(ht*KARE,hs*KARE,KARE,KARE);
   }
   
   if(!bitti&&sahCek(tahta,oyuncu)){
     const[ss,st]=sahKonum(tahta,oyuncu);
-    ctx.fillStyle='rgba(255,0,0,0.5)';ctx.fillRect(st*KARE,ss*KARE,KARE,KARE);
+    ctx.fillStyle='rgba(255,0,0,0.6)';ctx.fillRect(st*KARE,ss*KARE,KARE,KARE);
     ctx.strokeStyle='rgba(255,50,50,0.9)';ctx.lineWidth=3;
     ctx.strokeRect(st*KARE+2,ss*KARE+2,KARE-4,KARE-4);
   }
@@ -424,7 +530,7 @@ function ciz(){
     hamleler.forEach(([hs,ht])=>{
       const cx=ht*KARE+KARE/2,cy=hs*KARE+KARE/2;ctx.beginPath();
       if(tahta[hs][ht]||(gecerkenAlma&&hs===gecerkenAlma[0]&&ht===gecerkenAlma[1])){
-        ctx.arc(cx,cy,KARE/2-4,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fill();
+        ctx.arc(cx,cy,KARE/2-4,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.4)';ctx.fill();
         ctx.strokeStyle='rgba(0,0,0,0.8)';ctx.lineWidth=3;ctx.stroke();
       }else{
         const tas=tahta[ss]?.[st];
@@ -436,19 +542,21 @@ function ciz(){
     });
   }
   
-  // TAŞLAR - GERÇEK BEYAZ VE SİYAH
   ctx.font=`bold ${KARE*0.75}px "Segoe UI Symbol","Arial Unicode MS",sans-serif`;
   ctx.textAlign='center';ctx.textBaseline='middle';
+  
   for(let i=0;i<8;i++)for(let j=0;j<8;j++)if(tahta[i][j]){
     const m=TASLAR[tahta[i][j]],x=j*KARE+KARE/2,y=i*KARE+KARE/2+1;
-    if(tr(tahta[i][j])==='beyaz'){
-      ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillText(m,x+2,y+2);
+    const rnk=tr(tahta[i][j]);
+    
+    if(rnk==='beyaz'){
+      ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fillText(m,x+2,y+2);
       ctx.fillStyle='#ffffff';ctx.fillText(m,x,y);
-      ctx.strokeStyle='#333333';ctx.lineWidth=2;ctx.strokeText(m,x,y);
+      ctx.strokeStyle='#444444';ctx.lineWidth=1.5;ctx.strokeText(m,x,y);
     }else{
-      ctx.fillStyle='rgba(255,255,255,0.2)';ctx.fillText(m,x+1,y+1);
-      ctx.fillStyle='#0a0a0a';ctx.fillText(m,x,y);
-      ctx.fillStyle='#444444';ctx.fillText(m,x-1,y-1);
+      ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillText(m,x+2,y+2);
+      ctx.fillStyle='#111111';ctx.fillText(m,x,y);
+      ctx.strokeStyle='#000000';ctx.lineWidth=1.5;ctx.strokeText(m,x,y);
     }
   }
 }
@@ -462,7 +570,7 @@ function kareBul(ex,ey){
 }
 
 canvas.addEventListener('click',e=>{
-  if(bitti||botDusuyor||(oyunModu==='bot'&&oyuncu==='siyah'))return;
+  if(bitti||botDusuyor||(oyunModu==='bot'&&oyuncu===botRenk))return;
   const k=kareBul(e.clientX,e.clientY);if(!k)return;
   const{sat,sut}=k,tas=tahta[sat][sut];
   
@@ -470,10 +578,15 @@ canvas.addEventListener('click',e=>{
     const[ss,st]=secili;
     if(ss===sat&&st===sut){secili=null;hamleler=[];ciz();return}
     if(hamleler.some(([x,y])=>x===sat&&y===sut)){
-      hamleYap(ss,st,sat,sut);oyuncu=rrk(oyuncu);secili=null;hamleler=[];
+      hamleYap(ss,st,sat,sut);
+      oyuncu=rrk(oyuncu);secili=null;hamleler=[];
+      
+      // Geçmişe kaydet
+      durumuKaydet();
+      
       if(!oyunKontrol())document.getElementById('durumText').textContent=`♟️ ${oyuncu==='beyaz'?'Beyaz':'Siyah'} oynuyor`;
       ciz();durumGuncelle();
-      if(!bitti&&oyunModu==='bot'&&oyuncu==='siyah')setTimeout(botOyna,300);
+      if(!bitti&&oyunModu==='bot'&&oyuncu===botRenk)setTimeout(botOyna,300);
       return;
     }
     if(tas&&tr(tas)===oyuncu){secili=[sat,sut];hamleler=hamleBul(tahta,sat,sut,true,rokHakki,gecerkenAlma)}
@@ -485,15 +598,26 @@ canvas.addEventListener('click',e=>{
 // ============ KONTROLLER ============
 function yeniOyun(){
   clearInterval(sureInt);
-  tahta=JSON.parse(JSON.stringify(BASLA));oyuncu='beyaz';secili=null;hamleler=[];bitti=false;botDusuyor=false;
-  hamleSayisi=0;gecerkenAlma=null;
+  tahta=JSON.parse(JSON.stringify(BASLA));
+  oyuncu='beyaz';secili=null;hamleler=[];bitti=false;botDusuyor=false;
+  gecerkenAlma=null;sonHamle=null;
   rokHakki={beyaz:{buyuk:true,kucuk:true},siyah:{buyuk:true,kucuk:true}};
   bSure=sureSaniye;sSure=sureSaniye;
+  
+  // Geçmişi sıfırla
+  hamleGecmisi = [];
+  gecmisIndex = -1;
+  durumuKaydet(); // Başlangıç durumunu kaydet
+  
   document.getElementById('sahUyari').classList.remove('aktif');
   document.getElementById('zamanBox').classList.remove('tehlike');
   document.getElementById('durumText').textContent='♟️ Beyaz oynuyor';
   durumGuncelle();sureBaslat();ciz();
-  if(oyunModu==='bot'&&oyuncu==='siyah')setTimeout(botOyna,500);
+  
+  // Eğer bot beyaz seçildiyse, oyunu bot başlatsın
+  if(oyunModu==='bot' && botRenk === 'beyaz'){
+    setTimeout(botOyna, 500);
+  }
 }
 
 function modDegis(m){
@@ -501,6 +625,7 @@ function modDegis(m){
   document.getElementById('insanBtn').classList.toggle('aktif',m==='insan');
   document.getElementById('botBtn').classList.toggle('aktif',m==='bot');
   document.getElementById('zorlukSec').style.display=m==='bot'?'inline':'none';
+  document.getElementById('botRenkSec').style.display=m==='bot'?'inline':'none';
   yeniOyun();
 }
 
@@ -514,8 +639,19 @@ function temaDegis(){
   document.body.classList.toggle('tema-acik',!koyuTema);ciz();
 }
 
+function tahtaRengiDegis(){
+  tahtaRenkIndex=(tahtaRenkIndex+1)%tahtaRenkleri.length;
+  kaydet('tahtaRenk',tahtaRenkIndex);
+  ciz();
+}
+
 document.getElementById('zorlukSec').addEventListener('change',function(){
   zorluk=this.value;kaydet('zorluk',zorluk);
+});
+
+document.getElementById('botRenkSec').addEventListener('change',function(){
+  botRenk=this.value;kaydet('botRenk',botRenk);
+  yeniOyun();
 });
 
 // ============ BAŞLAT ============
@@ -523,10 +659,10 @@ document.body.classList.toggle('tema-acik',!koyuTema);
 document.getElementById('insanBtn').classList.toggle('aktif',oyunModu==='insan');
 document.getElementById('botBtn').classList.toggle('aktif',oyunModu==='bot');
 document.getElementById('zorlukSec').style.display=oyunModu==='bot'?'inline':'none';
+document.getElementById('botRenkSec').style.display=oyunModu==='bot'?'inline':'none';
 document.getElementById('zorlukSec').value=zorluk;
+document.getElementById('botRenkSec').value=botRenk;
 document.getElementById('sureSec').value=sureSaniye.toString();
-document.getElementById('beyazSkor').textContent=`⚪ Beyaz: ${bSkor}`;
-document.getElementById('siyahSkor').textContent=`⚫ Siyah: ${sSkor}`;
 yeniOyun();
 </script>
 </body>
