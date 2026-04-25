@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlpiChess - Rok Özellikli</title>
+  <title>AlpiChess - Online Çalışan</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s; }
     
@@ -123,41 +123,45 @@
       cursor: pointer;
     }
 
-    .online-controls {
+    .online-lobi {
       display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 15px;
       flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
     }
 
-    .online-controls input {
-      flex: 1;
-      min-width: 150px;
+    .online-lobi input {
       padding: 12px;
       border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 10px;
+      border-radius: 25px;
       background: rgba(0,0,0,0.3);
       color: white;
       font-size: 1rem;
-    }
-
-    .online-controls button {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      background: #ffd700;
-      color: #1a1a2e;
-    }
-
-    .room-info {
       text-align: center;
-      color: #ffd700;
-      margin: 10px 0;
-      font-size: 1.2rem;
-      font-weight: bold;
+      width: 180px;
     }
+
+    .online-lobi input::placeholder { color: rgba(255,255,255,0.5); }
+
+    .oda-kodu-box {
+      text-align: center;
+      background: rgba(0,0,0,0.4);
+      padding: 15px;
+      border-radius: 15px;
+      margin: 15px 0;
+      display: none;
+    }
+
+    .oda-kodu-box .kod {
+      font-size: 2.5rem;
+      color: #ffd700;
+      font-weight: bold;
+      letter-spacing: 8px;
+    }
+
+    .oda-kodu-box p { color: white; margin: 5px 0; }
 
     .game-header {
       display: flex;
@@ -167,17 +171,22 @@
       color: white;
     }
 
-    .player {
+    .player-box {
       padding: 10px 20px;
       background: rgba(255,255,255,0.1);
       border-radius: 15px;
       text-align: center;
+      min-width: 100px;
     }
 
-    .player.active {
+    .player-box.active {
       background: rgba(255,215,0,0.3);
       border: 2px solid #ffd700;
+      box-shadow: 0 0 15px rgba(255,215,0,0.3);
     }
+
+    .player-name { font-weight: bold; font-size: 1.1rem; }
+    .player-color { font-size: 0.8rem; opacity: 0.8; }
 
     canvas {
       border-radius: 15px;
@@ -206,6 +215,7 @@
       border-radius: 30px;
       text-align: center;
       font-weight: bold;
+      font-size: 1.1rem;
     }
 
     .offline-options {
@@ -214,6 +224,7 @@
       margin-bottom: 15px;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: center;
     }
 
     .offline-options select, .offline-options button {
@@ -231,54 +242,27 @@
       border-color: #4CAF50;
     }
 
-    .chat-container {
-      margin-top: 15px;
-      background: rgba(0,0,0,0.3);
-      border-radius: 10px;
-      padding: 15px;
-    }
-
-    .chat-messages {
-      height: 100px;
-      overflow-y: auto;
-      margin-bottom: 10px;
-      color: white;
-      font-size: 0.9rem;
-    }
-
-    .chat-input-group {
-      display: flex;
-      gap: 10px;
-    }
-
-    .chat-input-group input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      background: rgba(255,255,255,0.2);
-      color: white;
-    }
-
     .btn {
       padding: 12px 25px;
       border: none;
       border-radius: 25px;
       font-weight: bold;
       cursor: pointer;
-      text-transform: uppercase;
+      font-size: 1rem;
     }
 
     .btn-altin { background: #ffd700; color: #1a1a2e; }
     .btn-kirmizi { background: #e74c3c; color: white; }
     .btn-yesil { background: #4CAF50; color: white; }
+    .btn-mavi { background: #3498db; color: white; }
 
     @media (max-width: 600px) {
       .mode-select { flex-direction: column; }
-      .online-controls { flex-direction: column; }
+      .online-lobi { flex-direction: column; }
       .offline-options { flex-direction: column; }
       .header { font-size: 2rem; }
       canvas { max-width: 100%; }
+      .game-header { flex-direction: column; gap: 10px; }
     }
   </style>
 </head>
@@ -318,37 +302,39 @@
 
     <!-- ONLINE MOD -->
     <div class="satranc-kapsayici" id="onlineContainer">
-      <div class="online-controls" id="onlineLobby">
-        <input type="text" id="onlineName" placeholder="Adın..." maxlength="15">
+      <div class="online-lobi" id="onlineLobi">
+        <input type="text" id="onlineIsim" placeholder="👤 Adın..." maxlength="15">
         <button class="btn btn-altin" onclick="onlineOdaOlustur()">🎯 Oda Oluştur</button>
-        <input type="text" id="odaKoduInput" placeholder="Oda Kodu" maxlength="20" style="text-transform:uppercase">
+        <span style="color:white;">veya</span>
+        <input type="text" id="onlineOdaKodu" placeholder="🔑 Oda Kodu" maxlength="6" style="text-transform:uppercase">
         <button class="btn btn-yesil" onclick="onlineOdayaKatil()">🔗 Katıl</button>
       </div>
 
-      <div class="room-info" id="roomInfo" style="display:none"></div>
-
-      <div class="game-header" id="onlineGameHeader" style="display:none">
-        <div class="player" id="player1Info">
-          <div>⚪ Beyaz</div>
-          <div id="player1Name">-</div>
-        </div>
-        <div style="color:white; font-size:1.5rem;">VS</div>
-        <div class="player" id="player2Info">
-          <div>⚫ Siyah</div>
-          <div id="player2Name">-</div>
-        </div>
-        <button class="btn btn-kirmizi" onclick="onlineOyundanCik()">🚪 Çık</button>
+      <div class="oda-kodu-box" id="odaKoduBox">
+        <p>📢 Arkadaşına bu kodu gönder:</p>
+        <div class="kod" id="odaKoduText"></div>
+        <button class="btn btn-mavi" onclick="odaKodunuKopyala()" style="margin-top:10px;">📋 Kopyala</button>
+        <p style="font-size:0.8rem;margin-top:5px;">Arkadaşın katılana kadar bekle...</p>
       </div>
 
-      <canvas id="onlineCanvas" width="520" height="520" style="display:none"></canvas>
-      
-      <div class="durum-metni" id="durumMetniOn" style="display:none"></div>
-
-      <div class="chat-container" id="chatContainer" style="display:none">
-        <div class="chat-messages" id="chatMessages"></div>
-        <div class="chat-input-group">
-          <input type="text" id="chatInput" placeholder="Mesaj..." onkeypress="if(event.key==='Enter') onlineMesajGonder()">
-          <button class="btn btn-altin" onclick="onlineMesajGonder()">Gönder</button>
+      <div id="onlineOyunEkrani" style="display:none;">
+        <div class="game-header">
+          <div class="player-box" id="beyazBox">
+            <div class="player-color">⚪ Beyaz</div>
+            <div class="player-name" id="beyazIsim">-</div>
+          </div>
+          <div style="color:white;font-size:1.5rem;">⚔️</div>
+          <div class="player-box" id="siyahBox">
+            <div class="player-color">⚫ Siyah</div>
+            <div class="player-name" id="siyahIsim">-</div>
+          </div>
+        </div>
+        
+        <canvas id="onlineCanvas" width="520" height="520"></canvas>
+        
+        <div class="alt-panel" style="margin-top:15px;">
+          <div class="durum-metni" id="durumMetniOn">Bağlanıyor...</div>
+          <button class="btn btn-kirmizi" onclick="onlineOyundanCik()">🚪 Çık</button>
         </div>
       </div>
     </div>
@@ -377,21 +363,19 @@
     let currentMode = 'offline';
     let koyuTema = true;
     
-    // Offline değişkenleri
-    let offlineTahta, offlineOyuncu, offlineSecili, offlineHamleler, offlineBitti, offlineMod, offlineBotDusunuyor;
-    let offlineRokHakki = {}; // Rok haklarını takip et
+    // Offline
+    let offlineTahta, offlineOyuncu, offlineSecili, offlineHamleler, offlineBitti, offlineMod='insan', offlineBotDusunuyor;
+    let offlineRokHakki = {};
     
-    // Online değişkenleri
-    let onlineTahta, onlineRenk, onlineOdaKodu, onlineOyuncuAdi, onlineRakipAdi, onlineSiradaki, onlineSecili, onlineHamleler;
+    // Online
+    let onlineTahta, onlineRenk, onlineOdaKodu, onlineOyuncuAdi, onlineSiradaki, onlineSecili, onlineHamleler;
     let onlineRokHakki = {};
+    let onlineDinleyici = null;
     
-    const KARE_BOYUT = 520 / 8;
-    const TAS_SEMBOLLERI = {
-      r: '♜', n: '♞', b: '♝', q: '♛', k: '♚', p: '♟',
-      R: '♖', N: '♘', B: '♗', Q: '♕', K: '♔', P: '♙'
-    };
-    const TAS_DEGERLERI = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
-    const BASLANGIC = [
+    const KARE = 520 / 8;
+    const SEMBOL = { r:'♜',n:'♞',b:'♝',q:'♛',k:'♚',p:'♟', R:'♖',N:'♘',B:'♗',Q:'♕',K:'♔',P:'♙' };
+    const DEGER = { p:100, n:320, b:330, r:500, q:900, k:20000 };
+    const BASLA = [
       ['r','n','b','q','k','b','n','r'],
       ['p','p','p','p','p','p','p','p'],
       [null,null,null,null,null,null,null,null],
@@ -402,545 +386,483 @@
       ['R','N','B','Q','K','B','N','R']
     ];
 
-    // ============ MOD SEÇİMİ ============
+    // ============ ORTAK FONKSİYONLAR ============
+    function tr(t) { return t ? (t===t.toUpperCase()?'beyaz':'siyah') : null; }
+    function rrk(r) { return r==='beyaz'?'siyah':'beyaz'; }
+    function koor(s,t) { return s>=0&&s<8&&t>=0&&t<8; }
+
+    function sahKonum(tahta, renk) {
+      const s = renk==='beyaz'?'K':'k';
+      for(let i=0;i<8;i++) for(let j=0;j<8;j++) if(tahta[i][j]===s) return[i,j];
+      return null;
+    }
+
+    function tahtaKopyala(t) { return t.map(s=>[...s]); }
+
+    function tahtaHamleli(t, bs, bt, hs, ht) {
+      const y = tahtaKopyala(t);
+      y[hs][ht] = y[bs][bt]; y[bs][bt] = null;
+      return y;
+    }
+
+    function tehditVar(t, sat, sut, saldiran) {
+      for(let i=0;i<8;i++) for(let j=0;j<8;j++)
+        if(t[i][j]&&tr(t[i][j])===saldiran)
+          if(hamleBul(t,i,j,false,{}).some(([x,y])=>x===sat&&y===sut)) return true;
+      return false;
+    }
+
+    function sahCek(t, renk) {
+      const k = sahKonum(t, renk);
+      return k ? tehditVar(t,k[0],k[1],rrk(renk)) : false;
+    }
+
+    function guvenliHamle(t, bs, bt, hs, ht, renk) {
+      return !sahCek(tahtaHamleli(t,bs,bt,hs,ht), renk);
+    }
+
+    function hamleBul(t, sat, sut, guv=true, rokHakki={}) {
+      const tas = t[sat][sut];
+      if(!tas) return [];
+      const renk = tr(tas), h = [], trc = tas.toLowerCase();
+
+      const yonEkle = (dx, dy, tekrar) => {
+        for(let a=1;;a++) {
+          const ys=sat+dy*a, xs=sut+dx*a;
+          if(!koor(ys,xs)) break;
+          const ht = t[ys][xs];
+          if(!ht) h.push([ys,xs]);
+          else { if(tr(ht)!==renk) h.push([ys,xs]); break; }
+          if(!tekrar) break;
+        }
+      };
+
+      switch(trc) {
+        case 'p':
+          const y = renk==='beyaz'?-1:1, bs = renk==='beyaz'?6:1;
+          if(koor(sat+y,sut)&&!t[sat+y][sut]) {
+            h.push([sat+y,sut]);
+            if(sat===bs&&!t[sat+2*y][sut]) h.push([sat+2*y,sut]);
+          }
+          for(const c of[-1,1])
+            if(koor(sat+y,sut+c)&&t[sat+y][sut+c]&&tr(t[sat+y][sut+c])!==renk) h.push([sat+y,sut+c]);
+          break;
+        case 'n':
+          for(const[dy,dx] of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]) {
+            const ys=sat+dy, xs=sut+dx;
+            if(koor(ys,xs)&&(!t[ys][xs]||tr(t[ys][xs])!==renk)) h.push([ys,xs]);
+          }
+          break;
+        case 'b': for(const[dx,dy] of[[1,1],[1,-1],[-1,1],[-1,-1]]) yonEkle(dx,dy,true); break;
+        case 'r': for(const[dx,dy] of[[1,0],[-1,0],[0,1],[0,-1]]) yonEkle(dx,dy,true); break;
+        case 'q': for(const[dx,dy] of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]) yonEkle(dx,dy,true); break;
+        case 'k':
+          for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++) {
+            if(!dx&&!dy) continue;
+            const ys=sat+dy, xs=sut+dx;
+            if(koor(ys,xs)&&(!t[ys][xs]||tr(t[ys][xs])!==renk)) h.push([ys,xs]);
+          }
+          // ROK
+          if(guv && rokHakki[renk]) {
+            const rk = rokHakki[renk], sr = renk==='beyaz'?7:0;
+            if(!sahCek(t,renk)) {
+              if(rk.buyuk && t[sr][0]===(renk==='beyaz'?'R':'r') && !t[sr][1]&&!t[sr][2]&&!t[sr][3] &&
+                 !tehditVar(t,sr,2,rrk(renk)) && !tehditVar(t,sr,3,rrk(renk))) h.push([sr,2]);
+              if(rk.kucuk && t[sr][7]===(renk==='beyaz'?'R':'r') && !t[sr][5]&&!t[sr][6] &&
+                 !tehditVar(t,sr,5,rrk(renk)) && !tehditVar(t,sr,6,rrk(renk))) h.push([sr,6]);
+            }
+          }
+          break;
+      }
+      return guv ? h.filter(([hs,ht])=>guvenliHamle(t,sat,sut,hs,ht,renk)) : h;
+    }
+
+    function hamleYapVeRokGuncelle(t, bs, bt, hs, ht, rk) {
+      const tas = t[bs][bt], yt = tahtaHamleli(t,bs,bt,hs,ht);
+      const yr = JSON.parse(JSON.stringify(rk));
+      const trc = tas.toLowerCase(), renk = tr(tas);
+      
+      if(trc==='k') {
+        if(yr[renk]) delete yr[renk];
+        if(Math.abs(bt-ht)===2) {
+          const sr = bs;
+          if(ht===6) { yt[sr][5]=yt[sr][7]; yt[sr][7]=null; }
+          else if(ht===2) { yt[sr][3]=yt[sr][0]; yt[sr][0]=null; }
+        }
+      }
+      if(trc==='r'&&yr[renk]) {
+        if(bt===0) yr[renk].buyuk=false;
+        if(bt===7) yr[renk].kucuk=false;
+      }
+      if(t[hs][ht]) {
+        const ytcs = t[hs][ht].toLowerCase(), yrnk = tr(t[hs][ht]);
+        if(ytcs==='r'&&yr[yrnk]) {
+          if(ht===0) yr[yrnk].buyuk=false;
+          if(ht===7) yr[yrnk].kucuk=false;
+        }
+      }
+      return {tahta:yt, rokHakki:yr};
+    }
+
+    function tumHamleler(t, renk, rk) {
+      const h = [];
+      for(let i=0;i<8;i++) for(let j=0;j<8;j++)
+        if(t[i][j]&&tr(t[i][j])===renk)
+          hamleBul(t,i,j,true,rk).forEach(([x,y])=>h.push({bas:[i,j],hedef:[x,y]}));
+      return h;
+    }
+
+    function tahtaDeger(t) {
+      let s=0;
+      for(let i=0;i<8;i++) for(let j=0;j<8;j++)
+        if(t[i][j]) s+=(tr(t[i][j])==='beyaz'?1:-1)*DEGER[t[i][j].toLowerCase()];
+      return s;
+    }
+
+    function kareBul(canvas, ex, ey) {
+      const r = canvas.getBoundingClientRect();
+      const ox=canvas.width/r.width, oy=canvas.height/r.height;
+      const sut=Math.floor((ex-r.left)*ox/KARE), sat=Math.floor((ey-r.top)*oy/KARE);
+      return (sat>=0&&sat<8&&sut>=0&&sut<8)?{sat,sut}:null;
+    }
+
+    function tahtaCiz(ctx, t, sec, ham, sahkntrl, aktifRnk) {
+      const ac=koyuTema?'#f0d9b5':'#e8dcc8', ko=koyuTema?'#b58863':'#8b7355';
+      for(let i=0;i<8;i++) for(let j=0;j<8;j++) {
+        ctx.fillStyle=(i+j)%2===0?ac:ko;
+        ctx.fillRect(j*KARE,i*KARE,KARE,KARE);
+      }
+      if(sahkntrl&&aktifRnk&&sahCek(t,aktifRnk)) {
+        const[ss,st]=sahKonum(t,aktifRnk);
+        ctx.fillStyle='rgba(255,0,0,0.5)';
+        ctx.fillRect(st*KARE,ss*KARE,KARE,KARE);
+      }
+      if(sec) {
+        const[ss,st]=sec;
+        ctx.fillStyle='rgba(255,255,100,0.7)';
+        ctx.fillRect(st*KARE,ss*KARE,KARE,KARE);
+        ham.forEach(([hs,ht])=>{
+          const cx=ht*KARE+KARE/2, cy=hs*KARE+KARE/2;
+          ctx.beginPath();
+          if(t[hs][ht]) {
+            ctx.arc(cx,cy,KARE/2-4,0,Math.PI*2);
+            ctx.fillStyle='rgba(0,0,0,0.3)';ctx.fill();
+            ctx.strokeStyle='rgba(0,0,0,0.8)';ctx.lineWidth=3;ctx.stroke();
+          } else {
+            const tas=t[ss]?.[st];
+            if(tas&&tas.toLowerCase()==='k'&&Math.abs(st-ht)===2) {
+              ctx.arc(cx,cy,KARE/3,0,Math.PI*2);
+              ctx.fillStyle='rgba(0,150,255,0.7)';ctx.fill();
+              ctx.strokeStyle='rgba(0,100,200,0.9)';ctx.lineWidth=2;ctx.stroke();
+            } else {
+              ctx.arc(cx,cy,KARE/6,0,Math.PI*2);
+              ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fill();
+            }
+          }
+        });
+      }
+      ctx.font=`bold ${KARE*0.72}px "Segoe UI Symbol","Arial Unicode MS"`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      for(let i=0;i<8;i++) for(let j=0;j<8;j++) if(t[i][j]) {
+        const m=SEMBOL[t[i][j]], x=j*KARE+KARE/2, y=i*KARE+KARE/2+1;
+        ctx.fillStyle='#1a1a1a';ctx.fillText(m,x+1.5,y+1.5);
+        ctx.fillStyle=t[i][j]===t[i][j].toUpperCase()?'#fff':'#2f2f2f';
+        ctx.fillText(m,x,y);
+        ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.strokeText(m,x,y);
+      }
+    }
+
+    // ============ OFFLINE ============
+    function offlineYeniOyun() {
+      offlineTahta=JSON.parse(JSON.stringify(BASLA));
+      offlineOyuncu='beyaz'; offlineSecili=null; offlineHamleler=[]; offlineBitti=false; offlineBotDusunuyor=false;
+      offlineRokHakki={beyaz:{buyuk:true,kucuk:true},siyah:{buyuk:true,kucuk:true}};
+      document.getElementById('sahUyariOff').classList.remove('aktif');
+      document.getElementById('durumMetniOff').textContent='♟️ Beyaz oynuyor';
+      offlineCiz();
+      if(offlineMod==='bot'&&offlineOyuncu==='siyah') setTimeout(offlineBotOyna,500);
+    }
+
+    function offlineModDegistir(m) {
+      offlineMod=m;
+      document.getElementById('insanInsanBtn').classList.toggle('active',m==='insan');
+      document.getElementById('botBtn').classList.toggle('active',m==='bot');
+      document.getElementById('zorlukSecici').style.display=m==='bot'?'inline':'none';
+      offlineYeniOyun();
+    }
+
+    function offlineBotOyna() {
+      if(offlineBitti||offlineOyuncu!=='siyah') return;
+      offlineBotDusunuyor=true;
+      document.getElementById('durumMetniOff').textContent='🤖 Bot düşünüyor...';
+      setTimeout(()=>{
+        const h=tumHamleler(offlineTahta,'siyah',offlineRokHakki);
+        if(!h.length){offlineBotDusunuyor=false;offlineCiz();return;}
+        const z=document.getElementById('zorlukSecici').value;
+        let ham;
+        if(z==='kolay') ham=h[Math.floor(Math.random()*h.length)];
+        else if(z==='orta') {
+          const ye=h.filter(x=>offlineTahta[x.hedef[0]][x.hedef[1]]);
+          ham=(ye.length&&Math.random()>0.3)?ye[Math.floor(Math.random()*ye.length)]:h[Math.floor(Math.random()*h.length)];
+        } else {
+          let enIyi=h[0],enIyiD=-Infinity;
+          for(const x of h){
+            const s=hamleYapVeRokGuncelle(offlineTahta,x.bas[0],x.bas[1],x.hedef[0],x.hedef[1],offlineRokHakki);
+            const d=tahtaDeger(s.tahta);
+            if(d>enIyiD){enIyiD=d;enIyi=x;}
+          }
+          ham=enIyi;
+        }
+        const s=hamleYapVeRokGuncelle(offlineTahta,ham.bas[0],ham.bas[1],ham.hedef[0],ham.hedef[1],offlineRokHakki);
+        offlineTahta=s.tahta; offlineRokHakki=s.rokHakki; offlineOyuncu='beyaz';
+        offlineBotDusunuyor=false;
+        if(tumHamleler(offlineTahta,'beyaz',offlineRokHakki).length===0) {
+          offlineBitti=true;
+          document.getElementById('durumMetniOff').textContent=sahCek(offlineTahta,'beyaz')?'Siyah kazandı! Şah mat':'Berabere! Pat';
+        }
+        offlineCiz();
+      },500);
+    }
+
+    function offlineHamleYap(bs,bt,hs,ht) {
+      if(offlineBitti||offlineBotDusunuyor||(offlineMod==='bot'&&offlineOyuncu==='siyah')) return;
+      if(hamleBul(offlineTahta,bs,bt,true,offlineRokHakki).some(([x,y])=>x===hs&&y===ht)) {
+        const s=hamleYapVeRokGuncelle(offlineTahta,bs,bt,hs,ht,offlineRokHakki);
+        offlineTahta=s.tahta; offlineRokHakki=s.rokHakki; offlineOyuncu=rrk(offlineOyuncu);
+        offlineSecili=null;offlineHamleler=[];
+        if(tumHamleler(offlineTahta,offlineOyuncu,offlineRokHakki).length===0) {
+          offlineBitti=true;
+          document.getElementById('durumMetniOff').textContent=sahCek(offlineTahta,offlineOyuncu)?
+            (offlineOyuncu==='beyaz'?'Siyah kazandı! Şah mat':'Beyaz kazandı! Şah mat'):'Berabere! Pat';
+        }
+        offlineCiz();
+        if(!offlineBitti&&offlineMod==='bot'&&offlineOyuncu==='siyah') setTimeout(offlineBotOyna,500);
+      }
+    }
+
+    function offlineCiz() {
+      const c=document.getElementById('offlineCanvas'), ctx=c.getContext('2d');
+      tahtaCiz(ctx,offlineTahta,offlineSecili,offlineHamleler,true,offlineOyuncu);
+      const u=document.getElementById('sahUyariOff');
+      sahCek(offlineTahta,offlineOyuncu)?u.classList.add('aktif'):u.classList.remove('aktif');
+      if(!offlineBitti&&!offlineBotDusunuyor)
+        document.getElementById('durumMetniOff').textContent=`♟️ ${offlineOyuncu==='beyaz'?'Beyaz':'Siyah'} oynuyor`;
+    }
+
+    document.getElementById('offlineCanvas').addEventListener('click',(e)=>{
+      if(currentMode!=='offline'||offlineBitti||offlineBotDusunuyor) return;
+      if(offlineMod==='bot'&&offlineOyuncu==='siyah') return;
+      const k=kareBul(document.getElementById('offlineCanvas'),e.clientX,e.clientY);
+      if(!k) return;
+      const{sat,sut}=k;
+      if(offlineSecili){
+        const[ss,st]=offlineSecili;
+        if(ss===sat&&st===sut){offlineSecili=null;offlineHamleler=[];offlineCiz();return;}
+        if(offlineHamleler.some(([x,y])=>x===sat&&y===sut)){offlineHamleYap(ss,st,sat,sut);return;}
+        if(offlineTahta[sat][sut]&&tr(offlineTahta[sat][sut])===offlineOyuncu)
+          {offlineSecili=[sat,sut];offlineHamleler=hamleBul(offlineTahta,sat,sut,true,offlineRokHakki);}
+        else{offlineSecili=null;offlineHamleler=[];}
+      }else if(offlineTahta[sat][sut]&&tr(offlineTahta[sat][sut])===offlineOyuncu)
+        {offlineSecili=[sat,sut];offlineHamleler=hamleBul(offlineTahta,sat,sut,true,offlineRokHakki);}
+      offlineCiz();
+    });
+
+    // ============ ONLINE ============
+    function onlineOdaOlustur() {
+      onlineOyuncuAdi = document.getElementById('onlineIsim').value.trim();
+      if(!onlineOyuncuAdi) return alert('⚠️ Lütfen adını gir!');
+      
+      onlineOdaKodu = Math.random().toString(36).substring(2,8).toUpperCase();
+      onlineRenk = 'beyaz';
+      onlineTahta = JSON.parse(JSON.stringify(BASLA));
+      onlineSiradaki = 'beyaz';
+      onlineSecili = null;
+      onlineHamleler = [];
+      onlineRokHakki = {beyaz:{buyuk:true,kucuk:true},siyah:{buyuk:true,kucuk:true}};
+      
+      document.getElementById('odaKoduText').textContent = onlineOdaKodu;
+      document.getElementById('odaKoduBox').style.display = 'block';
+      document.getElementById('onlineLobi').style.display = 'none';
+      
+      // Firebase'e yaz
+      database.ref('oyunlar/' + onlineOdaKodu).set({
+        tahta: onlineTahta,
+        siradaki: 'beyaz',
+        beyazAd: onlineOyuncuAdi,
+        siyahAd: null,
+        durum: 'bekleniyor',
+        rokHakki: onlineRokHakki
+      }).then(() => {
+        console.log('✅ Oda oluşturuldu:', onlineOdaKodu);
+      }).catch(err => {
+        console.error('❌ Firebase hatası:', err);
+        alert('Bağlantı hatası! Lütfen tekrar dene.');
+        document.getElementById('odaKoduBox').style.display = 'none';
+        document.getElementById('onlineLobi').style.display = 'flex';
+      });
+      
+      // Dinlemeye başla
+      if(onlineDinleyici) database.ref('oyunlar/' + onlineOdaKodu).off();
+      onlineDinleyici = database.ref('oyunlar/' + onlineOdaKodu);
+      onlineDinleyici.on('value', onlineVeriDinle);
+    }
+
+    function onlineOdayaKatil() {
+      onlineOyuncuAdi = document.getElementById('onlineIsim').value.trim();
+      onlineOdaKodu = document.getElementById('onlineOdaKodu').value.trim().toUpperCase();
+      
+      if(!onlineOyuncuAdi) return alert('⚠️ Lütfen adını gir!');
+      if(!onlineOdaKodu) return alert('⚠️ Lütfen oda kodunu gir!');
+      
+      database.ref('oyunlar/' + onlineOdaKodu).once('value', snapshot => {
+        const oyun = snapshot.val();
+        if(!oyun) return alert('❌ Oda bulunamadı! Kodu kontrol et.');
+        if(oyun.siyahAd) return alert('❌ Oda dolu! Başka bir oda dene.');
+        if(oyun.durum === 'oyunda') return alert('❌ Oyun zaten başlamış!');
+        
+        onlineRenk = 'siyah';
+        
+        database.ref('oyunlar/' + onlineOdaKodu).update({
+          siyahAd: onlineOyuncuAdi,
+          durum: 'oyunda'
+        }).then(() => {
+          console.log('✅ Odaya katıldı:', onlineOdaKodu);
+        }).catch(err => {
+          console.error('❌ Firebase hatası:', err);
+          alert('Bağlantı hatası!');
+        });
+        
+        document.getElementById('odaKoduBox').style.display = 'none';
+        document.getElementById('onlineLobi').style.display = 'none';
+        
+        if(onlineDinleyici) database.ref('oyunlar/' + onlineOdaKodu).off();
+        onlineDinleyici = database.ref('oyunlar/' + onlineOdaKodu);
+        onlineDinleyici.on('value', onlineVeriDinle);
+      });
+    }
+
+    function onlineVeriDinle(snapshot) {
+      const oyun = snapshot.val();
+      if(!oyun) {
+        // Oda silindi
+        document.getElementById('onlineOyunEkrani').style.display = 'none';
+        document.getElementById('onlineLobi').style.display = 'flex';
+        document.getElementById('odaKoduBox').style.display = 'none';
+        alert('⚠️ Oda kapatıldı!');
+        if(onlineDinleyici) onlineDinleyici.off();
+        onlineDinleyici = null;
+        return;
+      }
+      
+      onlineTahta = oyun.tahta || onlineTahta;
+      onlineSiradaki = oyun.siradaki || 'beyaz';
+      onlineRokHakki = oyun.rokHakki || {beyaz:{buyuk:false,kucuk:false},siyah:{buyuk:false,kucuk:false}};
+      
+      document.getElementById('beyazIsim').textContent = oyun.beyazAd || 'Bekleniyor...';
+      document.getElementById('siyahIsim').textContent = oyun.siyahAd || 'Bekleniyor...';
+      
+      if(oyun.durum === 'oyunda') {
+        document.getElementById('odaKoduBox').style.display = 'none';
+        document.getElementById('onlineOyunEkrani').style.display = 'block';
+        
+        document.getElementById('beyazBox').classList.toggle('active', onlineSiradaki==='beyaz');
+        document.getElementById('siyahBox').classList.toggle('active', onlineSiradaki==='siyah');
+        
+        const benimSira = onlineSiradaki === onlineRenk;
+        document.getElementById('durumMetniOn').textContent = benimSira ? 
+          '🎯 Sıra sende!' : '⏳ Rakip bekleniyor...';
+        
+        onlineCiz();
+      }
+    }
+
+    function onlineCiz() {
+      const c = document.getElementById('onlineCanvas');
+      const ctx = c.getContext('2d');
+      tahtaCiz(ctx, onlineTahta, onlineSecili, onlineHamleler, true, onlineSiradaki);
+    }
+
+    document.getElementById('onlineCanvas').addEventListener('click', (e) => {
+      if(currentMode !== 'online') return;
+      if(onlineSiradaki !== onlineRenk) return;
+      if(!onlineOdaKodu) return;
+      
+      const k = kareBul(document.getElementById('onlineCanvas'), e.clientX, e.clientY);
+      if(!k) return;
+      
+      const {sat, sut} = k;
+      if(onlineSecili) {
+        const [ss, st] = onlineSecili;
+        if(ss===sat && st===sut) { onlineSecili=null; onlineHamleler=[]; onlineCiz(); return; }
+        if(onlineHamleler.some(([x,y]) => x===sat && y===sut)) {
+          const sonuc = hamleYapVeRokGuncelle(onlineTahta, ss, st, sat, sut, onlineRokHakki);
+          
+          database.ref('oyunlar/' + onlineOdaKodu).update({
+            tahta: sonuc.tahta,
+            siradaki: rrk(onlineRenk),
+            rokHakki: sonuc.rokHakki
+          });
+          
+          onlineSecili = null;
+          onlineHamleler = [];
+          return;
+        }
+        if(onlineTahta[sat][sut] && tr(onlineTahta[sat][sut])===onlineRenk) {
+          onlineSecili = [sat, sut];
+          onlineHamleler = hamleBul(onlineTahta, sat, sut, true, onlineRokHakki);
+        } else { onlineSecili=null; onlineHamleler=[]; }
+      } else if(onlineTahta[sat][sut] && tr(onlineTahta[sat][sut])===onlineRenk) {
+        onlineSecili = [sat, sut];
+        onlineHamleler = hamleBul(onlineTahta, sat, sut, true, onlineRokHakki);
+      }
+      onlineCiz();
+    });
+
+    function odaKodunuKopyala() {
+      navigator.clipboard.writeText(onlineOdaKodu).then(() => {
+        alert('✅ Oda kodu kopyalandı! WhatsApp ile arkadaşına gönder.');
+      });
+    }
+
+    function onlineOyundanCik() {
+      if(onlineOdaKodu && onlineDinleyici) {
+        database.ref('oyunlar/' + onlineOdaKodu).remove();
+        onlineDinleyici.off();
+        onlineDinleyici = null;
+      }
+      document.getElementById('onlineOyunEkrani').style.display = 'none';
+      document.getElementById('onlineLobi').style.display = 'flex';
+      document.getElementById('odaKoduBox').style.display = 'none';
+      document.getElementById('onlineOdaKodu').value = '';
+    }
+
+    // ============ GENEL ============
     function selectMode(mode) {
       currentMode = mode;
-      document.getElementById('offlineBtn').classList.toggle('active', mode === 'offline');
-      document.getElementById('onlineBtn').classList.toggle('active', mode === 'online');
-      document.getElementById('offlineContainer').classList.toggle('active', mode === 'offline');
-      document.getElementById('onlineContainer').classList.toggle('active', mode === 'online');
+      document.getElementById('offlineBtn').classList.toggle('active', mode==='offline');
+      document.getElementById('onlineBtn').classList.toggle('active', mode==='online');
+      document.getElementById('offlineContainer').classList.toggle('active', mode==='offline');
+      document.getElementById('onlineContainer').classList.toggle('active', mode==='online');
       
-      if (mode === 'offline') offlineYeniOyun();
-      if (mode === 'online') onlineSifirla();
+      if(mode==='offline') offlineYeniOyun();
+      if(mode==='online') {
+        if(onlineDinleyici) { onlineDinleyici.off(); onlineDinleyici=null; }
+        document.getElementById('onlineOyunEkrani').style.display='none';
+        document.getElementById('onlineLobi').style.display='flex';
+        document.getElementById('odaKoduBox').style.display='none';
+      }
     }
 
     function temaDegistir() {
       koyuTema = !koyuTema;
       document.body.classList.toggle('tema-acik', !koyuTema);
-      if (currentMode === 'offline') offlineCiz();
+      if(currentMode==='offline') offlineCiz();
+      if(currentMode==='online' && document.getElementById('onlineOyunEkrani').style.display==='block') onlineCiz();
     }
 
-    // ============ SATRANÇ MANTIĞI (ROK ÖZELLİKLİ) ============
-    function tasRengi(tas) { return tas ? (tas === tas.toUpperCase() ? 'beyaz' : 'siyah') : null; }
-    function rakipRenk(renk) { return renk === 'beyaz' ? 'siyah' : 'beyaz'; }
-    function koordinatDogruMu(s, t) { return s >= 0 && s < 8 && t >= 0 && t < 8; }
-
-    function sahKonumu(tahta, renk) {
-      const sah = renk === 'beyaz' ? 'K' : 'k';
-      for (let s = 0; s < 8; s++)
-        for (let t = 0; t < 8; t++)
-          if (tahta[s][t] === sah) return [s, t];
-      return null;
-    }
-
-    function tahtaKopyala(tahta) { return tahta.map(s => [...s]); }
-
-    function tahtaHamleli(tahta, bs, bt, hs, ht) {
-      const yeni = tahtaKopyala(tahta);
-      yeni[hs][ht] = yeni[bs][bt];
-      yeni[bs][bt] = null;
-      return yeni;
-    }
-
-    function kareTehditAltinda(tahta, sat, sut, saldiranRenk) {
-      for (let s = 0; s < 8; s++)
-        for (let t = 0; t < 8; t++)
-          if (tahta[s][t] && tasRengi(tahta[s][t]) === saldiranRenk)
-            if (hamleleriHesapla(tahta, s, t, false, {}).some(([hs, ht]) => hs === sat && ht === sut))
-              return true;
-      return false;
-    }
-
-    function sahCekiliyor(tahta, renk) {
-      const konum = sahKonumu(tahta, renk);
-      return konum ? kareTehditAltinda(tahta, konum[0], konum[1], rakipRenk(renk)) : false;
-    }
-
-    function hamleGuvenli(tahta, bs, bt, hs, ht, renk) {
-      return !sahCekiliyor(tahtaHamleli(tahta, bs, bt, hs, ht), renk);
-    }
-
-    function hamleleriHesapla(tahta, sat, sut, guvenlik = true, rokHakki = {}) {
-      const tas = tahta[sat][sut];
-      if (!tas) return [];
-      const renk = tasRengi(tas), hareketler = [], tur = tas.toLowerCase();
-
-      const yonEkle = (dx, dy, tekrar = false) => {
-        for (let a = 1; ; a++) {
-          const ys = sat + dy * a, xs = sut + dx * a;
-          if (!koordinatDogruMu(ys, xs)) break;
-          const ht = tahta[ys][xs];
-          if (!ht) hareketler.push([ys, xs]);
-          else { if (tasRengi(ht) !== renk) hareketler.push([ys, xs]); break; }
-          if (!tekrar) break;
-        }
-      };
-
-      switch (tur) {
-        case 'p':
-          const y = renk === 'beyaz' ? -1 : 1, bs = renk === 'beyaz' ? 6 : 1;
-          if (koordinatDogruMu(sat+y, sut) && !tahta[sat+y][sut]) {
-            hareketler.push([sat+y, sut]);
-            if (sat === bs && !tahta[sat+2*y][sut]) hareketler.push([sat+2*y, sut]);
-          }
-          for (const c of [-1, 1]) {
-            if (koordinatDogruMu(sat+y, sut+c)) {
-              const ht = tahta[sat+y][sut+c];
-              if (ht && tasRengi(ht) !== renk) hareketler.push([sat+y, sut+c]);
-            }
-          }
-          break;
-        case 'n':
-          for (const [dy, dx] of [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]) {
-            const ys = sat+dy, xs = sut+dx;
-            if (koordinatDogruMu(ys, xs) && (!tahta[ys][xs] || tasRengi(tahta[ys][xs]) !== renk))
-              hareketler.push([ys, xs]);
-          }
-          break;
-        case 'b': for (const [dx, dy] of [[1,1],[1,-1],[-1,1],[-1,-1]]) yonEkle(dx, dy, true); break;
-        case 'r': for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) yonEkle(dx, dy, true); break;
-        case 'q': for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]) yonEkle(dx, dy, true); break;
-        case 'k':
-          // Normal şah hareketleri
-          for (let dy = -1; dy <= 1; dy++)
-            for (let dx = -1; dx <= 1; dx++) {
-              if (!dx && !dy) continue;
-              const ys = sat+dy, xs = sut+dx;
-              if (koordinatDogruMu(ys, xs) && (!tahta[ys][xs] || tasRengi(tahta[ys][xs]) !== renk))
-                hareketler.push([ys, xs]);
-            }
-          
-          // ROK HAKKI KONTROLÜ
-          if (guvenlik && rokHakki[renk]) {
-            const rok = rokHakki[renk];
-            const sira = renk === 'beyaz' ? 7 : 0;
-            
-            // Şah tehdit altında değilse rok yapılabilir
-            if (!sahCekiliyor(tahta, renk)) {
-              // Büyük rok (vezir tarafı) - 0-0-0
-              if (rok.buyuk && 
-                  tahta[sira][0] === (renk === 'beyaz' ? 'R' : 'r') &&
-                  !tahta[sira][1] && !tahta[sira][2] && !tahta[sira][3] &&
-                  !kareTehditAltinda(tahta, sira, 2, rakipRenk(renk)) &&
-                  !kareTehditAltinda(tahta, sira, 3, rakipRenk(renk))) {
-                hareketler.push([sira, 2]); // Şahın gideceği kare
-              }
-              
-              // Küçük rok (şah tarafı) - 0-0
-              if (rok.kucuk && 
-                  tahta[sira][7] === (renk === 'beyaz' ? 'R' : 'r') &&
-                  !tahta[sira][5] && !tahta[sira][6] &&
-                  !kareTehditAltinda(tahta, sira, 5, rakipRenk(renk)) &&
-                  !kareTehditAltinda(tahta, sira, 6, rakipRenk(renk))) {
-                hareketler.push([sira, 6]); // Şahın gideceği kare
-              }
-            }
-          }
-          break;
-      }
-      return guvenlik ? hareketler.filter(([hs, ht]) => hamleGuvenli(tahta, sat, sut, hs, ht, renk)) : hareketler;
-    }
-
-    function hamleYapVeRokGuncelle(tahta, bs, bt, hs, ht, rokHakki) {
-      const tas = tahta[bs][bt];
-      const yeniTahta = tahtaHamleli(tahta, bs, bt, hs, ht);
-      const yeniRok = JSON.parse(JSON.stringify(rokHakki));
-      
-      // Şah veya kale hareket ederse rok hakkı kaybolur
-      const tur = tas.toLowerCase();
-      const renk = tasRengi(tas);
-      
-      if (tur === 'k') {
-        // Şah hareket etti - tüm rok hakları kaybolur
-        if (yeniRok[renk]) delete yeniRok[renk];
-        
-        // ROK YAPILDI MI? (Şah 2 kare hareket ettiyse)
-        if (Math.abs(bt - ht) === 2) {
-          const sira = bs;
-          if (ht === 6) {
-            // Küçük rok: Kale'yi de hareket ettir
-            yeniTahta[sira][5] = yeniTahta[sira][7];
-            yeniTahta[sira][7] = null;
-          } else if (ht === 2) {
-            // Büyük rok: Kale'yi de hareket ettir
-            yeniTahta[sira][3] = yeniTahta[sira][0];
-            yeniTahta[sira][0] = null;
-          }
-        }
-      }
-      
-      if (tur === 'r') {
-        // Kale hareket etti - o tarafın rok hakkı kaybolur
-        if (yeniRok[renk]) {
-          if (bt === 0) yeniRok[renk].buyuk = false;
-          if (bt === 7) yeniRok[renk].kucuk = false;
-        }
-      }
-      
-      // Eğer bir kale yenildiyse rok hakkı kaybolur
-      if (tahta[hs][ht]) {
-        const yenilen = tahta[hs][ht].toLowerCase();
-        const yenilenRenk = tasRengi(tahta[hs][ht]);
-        if (yenilen === 'r' && yeniRok[yenilenRenk]) {
-          if (ht === 0) yeniRok[yenilenRenk].buyuk = false;
-          if (ht === 7) yeniRok[yenilenRenk].kucuk = false;
-        }
-      }
-      
-      return { tahta: yeniTahta, rokHakki: yeniRok };
-    }
-
-    function tumHamleler(tahta, renk, rokHakki) {
-      const h = [];
-      for (let s = 0; s < 8; s++)
-        for (let t = 0; t < 8; t++)
-          if (tahta[s][t] && tasRengi(tahta[s][t]) === renk)
-            hamleleriHesapla(tahta, s, t, true, rokHakki).forEach(([hs, ht]) => h.push({bas:[s,t], hedef:[hs,ht]}));
-      return h;
-    }
-
-    function tahtaDeger(tahta) {
-      let skor = 0;
-      for (let s = 0; s < 8; s++)
-        for (let t = 0; t < 8; t++)
-          if (tahta[s][t]) skor += (tasRengi(tahta[s][t]) === 'beyaz' ? 1 : -1) * TAS_DEGERLERI[tahta[s][t].toLowerCase()];
-      return skor;
-    }
-
-    function botHamleBul(tahta, renk, zorluk, rokHakki) {
-      const hamleler = tumHamleler(tahta, renk, rokHakki);
-      if (!hamleler.length) return null;
-      if (zorluk === 'kolay') return hamleler[Math.floor(Math.random() * hamleler.length)];
-      if (zorluk === 'orta') {
-        const yeme = hamleler.filter(h => tahta[h.hedef[0]][h.hedef[1]]);
-        return (yeme.length && Math.random() > 0.3) ? yeme[Math.floor(Math.random() * yeme.length)] : hamleler[Math.floor(Math.random() * hamleler.length)];
-      }
-      let enIyi = hamleler[0], enIyiDeger = renk === 'beyaz' ? -Infinity : Infinity;
-      for (const h of hamleler) {
-        const sonuc = hamleYapVeRokGuncelle(tahta, h.bas[0], h.bas[1], h.hedef[0], h.hedef[1], rokHakki);
-        const deger = tahtaDeger(sonuc.tahta);
-        if ((renk === 'beyaz' && deger > enIyiDeger) || (renk === 'siyah' && deger < enIyiDeger)) {
-          enIyiDeger = deger; enIyi = h;
-        }
-      }
-      return enIyi;
-    }
-
-    function canvasKare(canvas, ex, ey) {
-      const rect = canvas.getBoundingClientRect();
-      const ox = canvas.width / rect.width, oy = canvas.height / rect.height;
-      const sut = Math.floor(((ex - rect.left) * ox) / KARE_BOYUT);
-      const sat = Math.floor(((ey - rect.top) * oy) / KARE_BOYUT);
-      return (sat >= 0 && sat < 8 && sut >= 0 && sut < 8) ? { sat, sut } : null;
-    }
-
-    function tahtaCiz(ctx, tahta, secili, hamleler, sahkontrol, aktifRenk) {
-      const acik = koyuTema ? '#f0d9b5' : '#e8dcc8', koyu = koyuTema ? '#b58863' : '#8b7355';
-      for (let s = 0; s < 8; s++)
-        for (let t = 0; t < 8; t++) {
-          ctx.fillStyle = (s + t) % 2 === 0 ? acik : koyu;
-          ctx.fillRect(t * KARE_BOYUT, s * KARE_BOYUT, KARE_BOYUT, KARE_BOYUT);
-        }
-
-      if (sahkontrol && aktifRenk && sahCekiliyor(tahta, aktifRenk)) {
-        const [ss, st] = sahKonumu(tahta, aktifRenk);
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-        ctx.fillRect(st * KARE_BOYUT, ss * KARE_BOYUT, KARE_BOYUT, KARE_BOYUT);
-      }
-
-      if (secili) {
-        const [ss, st] = secili;
-        ctx.fillStyle = 'rgba(255, 255, 100, 0.7)';
-        ctx.fillRect(st * KARE_BOYUT, ss * KARE_BOYUT, KARE_BOYUT, KARE_BOYUT);
-        hamleler.forEach(([hs, ht]) => {
-          const cx = ht * KARE_BOYUT + KARE_BOYUT/2, cy = hs * KARE_BOYUT + KARE_BOYUT/2;
-          ctx.beginPath();
-          if (tahta[hs][ht]) {
-            ctx.arc(cx, cy, KARE_BOYUT/2-4, 0, Math.PI*2);
-            ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fill();
-            ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 3; ctx.stroke();
-          } else {
-            // Rok hamlelerini özel göster
-            const tas = tahta[ss]?.[st];
-            if (tas && tas.toLowerCase() === 'k' && Math.abs(st - ht) === 2) {
-              ctx.arc(cx, cy, KARE_BOYUT/3, 0, Math.PI*2);
-              ctx.fillStyle = 'rgba(0,150,255,0.7)'; ctx.fill();
-              ctx.strokeStyle = 'rgba(0,100,200,0.9)'; ctx.lineWidth = 2; ctx.stroke();
-            } else {
-              ctx.arc(cx, cy, KARE_BOYUT/6, 0, Math.PI*2);
-              ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fill();
-            }
-          }
-        });
-      }
-
-      ctx.font = `bold ${KARE_BOYUT*0.72}px "Segoe UI Symbol", "Arial Unicode MS", sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      for (let s = 0; s < 8; s++)
-        for (let t = 0; t < 8; t++)
-          if (tahta[s][t]) {
-            const m = TAS_SEMBOLLERI[tahta[s][t]], x = t*KARE_BOYUT+KARE_BOYUT/2, y = s*KARE_BOYUT+KARE_BOYUT/2+1;
-            ctx.fillStyle = '#1a1a1a'; ctx.fillText(m, x+1.5, y+1.5);
-            ctx.fillStyle = tahta[s][t] === tahta[s][t].toUpperCase() ? '#fff' : '#2f2f2f';
-            ctx.fillText(m, x, y);
-            ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.strokeText(m, x, y);
-          }
-    }
-
-    // ============ OFFLINE MOD ============
-    function offlineYeniOyun() {
-      offlineTahta = JSON.parse(JSON.stringify(BASLANGIC));
-      offlineOyuncu = 'beyaz';
-      offlineSecili = null;
-      offlineHamleler = [];
-      offlineBitti = false;
-      offlineBotDusunuyor = false;
-      offlineRokHakki = {
-        beyaz: { buyuk: true, kucuk: true },
-        siyah: { buyuk: true, kucuk: true }
-      };
-      document.getElementById('sahUyariOff').classList.remove('aktif');
-      document.getElementById('durumMetniOff').textContent = '♟️ Beyaz oynuyor';
-      offlineCiz();
-      if (offlineMod === 'bot' && offlineOyuncu === 'siyah') setTimeout(offlineBotOyna, 500);
-    }
-
-    function offlineModDegistir(mod) {
-      offlineMod = mod;
-      document.getElementById('insanInsanBtn').classList.toggle('active', mod === 'insan');
-      document.getElementById('botBtn').classList.toggle('active', mod === 'bot');
-      document.getElementById('zorlukSecici').style.display = mod === 'bot' ? 'inline' : 'none';
-      offlineYeniOyun();
-    }
-
-    function offlineBotOyna() {
-      if (offlineBitti || offlineOyuncu !== 'siyah') return;
-      offlineBotDusunuyor = true;
-      document.getElementById('durumMetniOff').textContent = '🤖 Bot düşünüyor...';
-      setTimeout(() => {
-        const hamle = botHamleBul(offlineTahta, 'siyah', document.getElementById('zorlukSecici').value, offlineRokHakki);
-        if (hamle) {
-          const sonuc = hamleYapVeRokGuncelle(offlineTahta, hamle.bas[0], hamle.bas[1], hamle.hedef[0], hamle.hedef[1], offlineRokHakki);
-          offlineTahta = sonuc.tahta;
-          offlineRokHakki = sonuc.rokHakki;
-          offlineOyuncu = 'beyaz';
-          offlineHamleKontrol();
-        }
-        offlineBotDusunuyor = false;
-        offlineCiz();
-      }, 500);
-    }
-
-    function offlineHamleKontrol() {
-      if (tumHamleler(offlineTahta, offlineOyuncu, offlineRokHakki).length === 0) {
-        offlineBitti = true;
-        document.getElementById('durumMetniOff').textContent = sahCekiliyor(offlineTahta, offlineOyuncu) ?
-          (offlineOyuncu === 'beyaz' ? 'Siyah kazandı! Şah mat' : 'Beyaz kazandı! Şah mat') : 'Berabere! Pat';
-      }
-    }
-
-    function offlineHamleYap(bs, bt, hs, ht) {
-      if (offlineBitti || offlineBotDusunuyor || (offlineMod === 'bot' && offlineOyuncu === 'siyah')) return;
-      if (hamleleriHesapla(offlineTahta, bs, bt, true, offlineRokHakki).some(([hss, htt]) => hss === hs && htt === ht)) {
-        const sonuc = hamleYapVeRokGuncelle(offlineTahta, bs, bt, hs, ht, offlineRokHakki);
-        offlineTahta = sonuc.tahta;
-        offlineRokHakki = sonuc.rokHakki;
-        offlineOyuncu = rakipRenk(offlineOyuncu);
-        offlineSecili = null; offlineHamleler = [];
-        offlineHamleKontrol();
-        offlineCiz();
-        if (!offlineBitti && offlineMod === 'bot' && offlineOyuncu === 'siyah') setTimeout(offlineBotOyna, 500);
-      }
-    }
-
-    function offlineCiz() {
-      const canvas = document.getElementById('offlineCanvas');
-      const ctx = canvas.getContext('2d');
-      tahtaCiz(ctx, offlineTahta, offlineSecili, offlineHamleler, true, offlineOyuncu);
-      
-      const uyari = document.getElementById('sahUyariOff');
-      if (sahCekiliyor(offlineTahta, offlineOyuncu)) uyari.classList.add('aktif');
-      else uyari.classList.remove('aktif');
-      
-      if (!offlineBitti && !offlineBotDusunuyor)
-        document.getElementById('durumMetniOff').textContent = `♟️ ${offlineOyuncu === 'beyaz' ? 'Beyaz' : 'Siyah'} oynuyor`;
-    }
-
-    document.getElementById('offlineCanvas').addEventListener('click', (e) => {
-      if (currentMode !== 'offline' || offlineBitti || offlineBotDusunuyor) return;
-      if (offlineMod === 'bot' && offlineOyuncu === 'siyah') return;
-      
-      const kare = canvasKare(document.getElementById('offlineCanvas'), e.clientX, e.clientY);
-      if (!kare) return;
-      
-      const { sat, sut } = kare;
-      if (offlineSecili) {
-        const [ss, st] = offlineSecili;
-        if (ss === sat && st === sut) { offlineSecili = null; offlineHamleler = []; offlineCiz(); return; }
-        if (offlineHamleler.some(([hs, ht]) => hs === sat && ht === sut)) {
-          offlineHamleYap(ss, st, sat, sut); return;
-        }
-        if (offlineTahta[sat][sut] && tasRengi(offlineTahta[sat][sut]) === offlineOyuncu) {
-          offlineSecili = [sat, sut]; offlineHamleler = hamleleriHesapla(offlineTahta, sat, sut, true, offlineRokHakki);
-        } else { offlineSecili = null; offlineHamleler = []; }
-      } else if (offlineTahta[sat][sut] && tasRengi(offlineTahta[sat][sut]) === offlineOyuncu) {
-        offlineSecili = [sat, sut]; offlineHamleler = hamleleriHesapla(offlineTahta, sat, sut, true, offlineRokHakki);
-      }
-      offlineCiz();
-    });
-
-    // ============ ONLINE MOD ============
-    function onlineSifirla() {
-      document.getElementById('onlineLobby').style.display = 'flex';
-      document.getElementById('roomInfo').style.display = 'none';
-      document.getElementById('onlineGameHeader').style.display = 'none';
-      document.getElementById('onlineCanvas').style.display = 'none';
-      document.getElementById('durumMetniOn').style.display = 'none';
-      document.getElementById('chatContainer').style.display = 'none';
-      document.getElementById('chatMessages').innerHTML = '';
-      onlineOdaKodu = null;
-    }
-
-    function onlineOdaOlustur() {
-      onlineOyuncuAdi = document.getElementById('onlineName').value.trim();
-      if (!onlineOyuncuAdi) return alert('Adını gir!');
-      
-      onlineOdaKodu = Math.random().toString(36).substring(2, 8).toUpperCase();
-      onlineRenk = 'beyaz';
-      onlineTahta = JSON.parse(JSON.stringify(BASLANGIC));
-      onlineSiradaki = 'beyaz';
-      onlineSecili = null;
-      onlineHamleler = [];
-      onlineRokHakki = {
-        beyaz: { buyuk: true, kucuk: true },
-        siyah: { buyuk: true, kucuk: true }
-      };
-      
-      document.getElementById('roomInfo').textContent = `🏠 Oda Kodu: ${onlineOdaKodu}`;
-      document.getElementById('roomInfo').style.display = 'block';
-      document.getElementById('onlineLobby').style.display = 'none';
-      
-      database.ref('oyunlar/' + onlineOdaKodu).set({
-        tahta: onlineTahta,
-        siradaki: 'beyaz',
-        beyaz: onlineOyuncuAdi,
-        siyah: null,
-        durum: 'bekleniyor',
-        rokHakki: onlineRokHakki
-      });
-      
-      database.ref('oyunlar/' + onlineOdaKodu).on('value', onlineDinle);
-    }
-
-    function onlineOdayaKatil() {
-      onlineOyuncuAdi = document.getElementById('onlineName').value.trim();
-      onlineOdaKodu = document.getElementById('odaKoduInput').value.trim().toUpperCase();
-      if (!onlineOyuncuAdi || !onlineOdaKodu) return alert('Ad ve oda kodunu gir!');
-      
-      database.ref('oyunlar/' + onlineOdaKodu).once('value', snapshot => {
-        const oyun = snapshot.val();
-        if (!oyun) return alert('Oda bulunamadı!');
-        if (oyun.siyah) return alert('Oda dolu!');
-        
-        onlineRenk = 'siyah';
-        database.ref('oyunlar/' + onlineOdaKodu).update({
-          siyah: onlineOyuncuAdi,
-          durum: 'oyunda'
-        });
-        
-        document.getElementById('onlineLobby').style.display = 'none';
-        document.getElementById('roomInfo').textContent = `🔗 Katıldın: ${onlineOdaKodu}`;
-        document.getElementById('roomInfo').style.display = 'block';
-        database.ref('oyunlar/' + onlineOdaKodu).on('value', onlineDinle);
-      });
-    }
-
-    function onlineDinle(snapshot) {
-      const oyun = snapshot.val();
-      if (!oyun) { onlineSifirla(); return; }
-      
-      onlineTahta = oyun.tahta;
-      onlineSiradaki = oyun.siradaki;
-      onlineRokHakki = oyun.rokHakki || { beyaz: { buyuk: false, kucuk: false }, siyah: { buyuk: false, kucuk: false } };
-      document.getElementById('player1Name').textContent = oyun.beyaz || '-';
-      document.getElementById('player2Name').textContent = oyun.siyah || '-';
-      
-      if (oyun.durum === 'oyunda') {
-        document.getElementById('onlineGameHeader').style.display = 'flex';
-        document.getElementById('onlineCanvas').style.display = 'block';
-        document.getElementById('durumMetniOn').style.display = 'block';
-        document.getElementById('chatContainer').style.display = 'block';
-        document.getElementById('roomInfo').style.display = 'none';
-        
-        document.getElementById('player1Info').classList.toggle('active', onlineSiradaki === 'beyaz');
-        document.getElementById('player2Info').classList.toggle('active', onlineSiradaki === 'siyah');
-        document.getElementById('durumMetniOn').textContent = onlineSiradaki === onlineRenk ? '🎯 Sıra sende!' : '⏳ Rakip bekleniyor...';
-      }
-      
-      onlineCiz();
-    }
-
-    function onlineCiz() {
-      const canvas = document.getElementById('onlineCanvas');
-      const ctx = canvas.getContext('2d');
-      tahtaCiz(ctx, onlineTahta, onlineSecili, onlineHamleler, true, onlineSiradaki);
-    }
-
-    document.getElementById('onlineCanvas').addEventListener('click', (e) => {
-      if (currentMode !== 'online' || onlineSiradaki !== onlineRenk) return;
-      
-      const kare = canvasKare(document.getElementById('onlineCanvas'), e.clientX, e.clientY);
-      if (!kare) return;
-      
-      const { sat, sut } = kare;
-      if (onlineSecili) {
-        const [ss, st] = onlineSecili;
-        if (ss === sat && st === sut) { onlineSecili = null; onlineHamleler = []; onlineCiz(); return; }
-        if (onlineHamleler.some(([hs, ht]) => hs === sat && ht === sut)) {
-          const sonuc = hamleYapVeRokGuncelle(onlineTahta, ss, st, sat, sut, onlineRokHakki);
-          database.ref('oyunlar/' + onlineOdaKodu).update({
-            tahta: sonuc.tahta,
-            siradaki: rakipRenk(onlineRenk),
-            rokHakki: sonuc.rokHakki
-          });
-          onlineSecili = null; onlineHamleler = [];
-          return;
-        }
-        if (onlineTahta[sat][sut] && tasRengi(onlineTahta[sat][sut]) === onlineRenk) {
-          onlineSecili = [sat, sut]; onlineHamleler = hamleleriHesapla(onlineTahta, sat, sut, true, onlineRokHakki);
-        } else { onlineSecili = null; onlineHamleler = []; }
-      } else if (onlineTahta[sat][sut] && tasRengi(onlineTahta[sat][sut]) === onlineRenk) {
-        onlineSecili = [sat, sut]; onlineHamleler = hamleleriHesapla(onlineTahta, sat, sut, true, onlineRokHakki);
-      }
-      onlineCiz();
-    });
-
-    function onlineMesajGonder() {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (!text) return;
-      
-      const mesajlar = database.ref('oyunlar/' + onlineOdaKodu + '/chat');
-      mesajlar.push({ ad: onlineOyuncuAdi, mesaj: text, zaman: Date.now() });
-      
-      const chatDiv = document.getElementById('chatMessages');
-      chatDiv.innerHTML += `<div><strong>${onlineOyuncuAdi}:</strong> ${text}</div>`;
-      chatDiv.scrollTop = chatDiv.scrollHeight;
-      input.value = '';
-    }
-
-    function onlineOyundanCik() {
-      if (onlineOdaKodu) {
-        database.ref('oyunlar/' + onlineOdaKodu).off();
-        database.ref('oyunlar/' + onlineOdaKodu).remove();
-      }
-      onlineSifirla();
-    }
-
-    // ============ BAŞLANGIÇ ============
+    // BAŞLANGIÇ
     offlineMod = 'insan';
     offlineYeniOyun();
-    selectMode('offline');
   </script>
 </body>
 </html>
